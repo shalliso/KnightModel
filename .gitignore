@@ -1,0 +1,28 @@
+.lake/
+.claude/settings.local.json
+
+# Logs
+*.log
+
+# LaTeX / PDF build artifacts
+*.aux
+*.paux
+*.pdf
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.dvi
+*.bbl
+*.blg
+
+# Blueprint compiled output (rebuilt by CI)
+blueprint/print/
+blueprint/web/
+
+# Editor / OS noise
+*~
+.DS_Store
+
+.vscode/settings.json

@@ -1,0 +1,115 @@
+# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# Requiredness/conformance:
+#   - Fields marked [required] should be present and filled.
+#   - Fields not marked [required] are examples/recommended metadata only; they may be omitted.
+#   - Projects may add extra YAML keys at any level. Readers should tolerate unknown keys.
+# This is a lightweight reporting schema, not a closed validation schema.
+
+version: "v0.3"
+
+# project - the formalization itself (not the source).
+project:
+  name: "KnightModel"                     # [required]
+  authors: [Shaun Allison]                  # [required] who did the formalization
+  license: "Apache-2.0"                  # [required]
+
+# sources - what was formalized. List of papers/textbooks/blueprints/etc.
+sources:                       # [required] list of sources
+  - title: "A complete Lω1ω-sentence characterizing ℵ1"                  # [required]
+    authors: [Julia Knight]                # [required]
+    id: "doi:10.2307/2272318"                     # [required] link, DOI, or arXiv ID (with version)
+    type: "paper"                   # kind of source (textbook, preprint, blueprint, ...)
+    license: "all rights reserved"
+    author_contacted: "yes"       # yes | no | n/a
+    prior_work: ""             # URL/citation of earlier formalization built upon
+
+# project status
+status:
+  # describe the scope of the project
+  scope: "A formalization of the construction of Knight's model. Moreover, a general class
+    of such objects is axiomatized and their theory is further developed. Infinitary logic
+    is not formalized or used here."                    
+  sorry_count: 0
+  sorry_in_definitions: 0
+  # list all axioms used (including standard axioms such as `Quot.sound`)
+  axioms: ["propext", "Classical.choice", "Quot.sound"]                   
+  main_results:
+  - declaration: "exists_blueprint"
+    file: "KnightModel/MainResults.lean"
+    sorry_count: 0
+    axioms: ["propext", "Classical.choice", "Quot.sound"]
+    comparator_config: "Audit/comparator.json"
+    literature_dependencies: []
+  - declaration: "knightModel_card_le_aleph_one"
+    file: "KnightModel/MainResults.lean"
+    sorry_count: 0
+    axioms: ["propext", "Classical.choice", "Quot.sound"]
+    comparator_config: "Audit/comparator.json"
+    literature_dependencies: []
+  - declaration: "exists_aleph_one_model"
+    file: "KnightModel/MainResults.lean"
+    sorry_count: 0
+    axioms: ["propext", "Classical.choice", "Quot.sound"]
+    comparator_config: "Audit/comparator.json"
+    literature_dependencies: []
+  - declaration: "nonempty_knightIso_of_encodable"
+    file: "KnightModel/MainResults.lean"
+    sorry_count: 0
+    axioms: ["propext", "Classical.choice", "Quot.sound"]
+    comparator_config: "Audit/comparator.json"
+    literature_dependencies: []
+
+# how it was produced. Extra per-entry fields are allowed.
+automation:                    # [required]
+  methods:                     # one entry per distinct phase/run/tool
+    - method: "agent"               # [required] manual | copilot | agent | autonomous | other
+      models: ["claude-opus-4-8", "claude-opus-4-7", "claude-sonnet-4-6"]   # e.g. ["claude-opus-4-7", "gpt-5"]
+      framework: "Claude Code"            # e.g. "Claude Code", "OpenClaw", "LeanCopilot"
+      tool_setup: "cameronfreer/lean4-skills"           # tools, harnesses, plugins, orchestration, customizations
+      cost:
+        wall_time: "not separately tracked"          # e.g. "3 weeks" or "240 GPU-hours"
+        spend_usd: "subscription-based usage"          # spend for this method, e.g. "$10 API credits"
+        hardware: "API-only"           # GPU count, "API-only", "my laptop", whatever's relevant
+      prompting_notes: "Human-directed agent work, closely supervised by the author."
+  spend_usd: "subscription-based usage"
+  notes: ""
+
+# fidelity
+fidelity:
+  divergences: "this generalizes the original ad-hoc construction to a class of objects defined as 'Knight Models'"
+                # places the formalization deviates from sources: generalizations, weakened hypotheses, renamed lemmas, etc.
+
+# review status
+review:
+  status: "author-verified"                   # [required] unchecked | agent-reviewed | self-assessed | peer-reviewed | author-verified | other/freeform
+  reviewers: [Shaun Allison]
+  notes: "verified with leanprover/comparator via fake-landrun.sh on macOS" # more details on the review process
+
+# alignment - freeform YAML describing how source statements map to formal declarations.
+# The structured table below is only a suggested shape; replace or extend it as useful.
+alignment:
+  namespace: "KnightModel"
+  statements:
+    - source: "Upper bound: every model of Knight's sentence has cardinality ≤ ℵ₁"
+      lean: "knightModel_card_le_aleph_one"
+      module: "KnightModel.MainResults"
+      status: "proved"
+      note: "Generalized to the abstract KnightModel typeclass; the knight automorphism group instance confirms the class is non-vacuous."
+    - source: "Existence: there is a model of Knight's sentence of cardinality exactly ℵ₁"
+      lean: "exists_aleph_one_model"
+      module: "KnightModel.MainResults"
+      status: "proved"
+      note: "Proved for every Blueprint via a transfinite Zorn's-lemma chain construction."
+    - source: "Uniqueness: any two countable models of Knight's sentence are isomorphic"
+      lean: "nonempty_knightIso_of_encodable"
+      module: "KnightModel.MainResults"
+      status: "proved"
+      note: "Not in the original paper -- the original construction did not guarantee this"
+    - source: "Non-vacuousness: the abstract Blueprint class is inhabited"
+      lean: "exists_blueprint"
+      module: "KnightModel.MainResults"
+      status: "proved"
+      note: "Not in the original paper -- this essentially encodes the Lω1ω-sentence without needing to formalize infinitary logic"
+
+# acknowledgements - optional credits for libraries, tools, discussions, etc.
+acknowledgements: "Mathlib, cameronfreer/lean4-skills"

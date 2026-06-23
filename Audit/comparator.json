@@ -1,0 +1,12 @@
+{
+    "challenge_module": "Audit.Challenge",
+    "solution_module": "Audit.Solution",
+    "theorem_names": [
+        "KnightModel.StatementAudit.exists_blueprint",
+        "KnightModel.StatementAudit.nonempty_knightIso_of_encodable",
+        "KnightModel.StatementAudit.knightModel_card_le_aleph_one",
+        "KnightModel.StatementAudit.exists_aleph_one_model"
+    ],
+    "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+    "enable_nanoda": false
+}
