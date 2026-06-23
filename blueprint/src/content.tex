@@ -134,13 +134,14 @@ Given a KnightAutGroup $H$, the set $\{q \in \mathbb{Q} \mid q \le 1\}$ carries 
 
 \begin{definition}[Knight model from a blueprint]
   \label{def:knight-model-blueprint}
-  \lean{Blueprint.KnightModel}
+  \lean{Blueprint.Model}
   \leanok
   Given a blueprint $(\Omega, \circ, \le)$, the derived Knight model $\mathcal{K}_\Omega = (K, \preceq, f_n)_{n \in \Omega}$ is defined by $K = \{a \in \Omega \mid a < 1\}$ where $f_n(a) := n \circ a$ and $\preceq$ is just $\le$.
 \end{definition}
 
 \begin{theorem}
   \label{thm:blueprint-is-knight-model}
+  \lean{Blueprint.Model.instKnightModel}
   \leanok
   Given a blueprint $(\Omega, \circ, \le)$ the derived Knight model $\mathcal{K}_\Omega$ is indeed a Knight model with blueprint $\Omega$.
 \end{theorem}
