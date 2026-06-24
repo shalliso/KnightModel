@@ -87,13 +87,6 @@ Audit/
 └── comparator.json          # Comparator configuration
 ```
 
-## Dependencies
-
-| Dependency | Version          |
-|------------|------------------|
-| Lean 4     | `v4.28.0-rc1`    |
-| Mathlib    | `v4.28.0-rc1`    |
-
 ## License
 
 Apache 2.0 — see the [LICENSE](LICENSE) file.
