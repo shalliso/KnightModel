@@ -12,7 +12,7 @@ For the original rank-one construction, we distill the notion of a Blueprint, wh
 
 From a Blueprint one can derive a Knight model, and to construct a Blueprint we use a Baire category argument (in the language of forcing). To construct a Knight model of cardinality $\aleph_1$, we use Zorn's lemma.
 
-This formalization is complete, with no `sorry` and no use of axioms other than the foundational `propext`, `Classical.choice`, and `Quot.sound`; this is confirmed by [`KnightModel/Meta/AxiomsAudit.lean`](KnightModel/Meta/AxiomsAudit.lean). A more rigorous audit with **[`leanprover/comparator`](https://github.com/leanprover/comparator)** can be done with the files in `Audit/`.
+This formalization is complete, with no `sorry` and no use of axioms other than the foundational `propext`, `Classical.choice`, and `Quot.sound`; this is confirmed by [`KnightModel/Meta/AxiomsAudit.lean`](KnightModel/Meta/AxiomsAudit.lean). The original four public theorems also have a [comparator audit](Audit/README.md).
 
 ## Motivations
 
@@ -51,15 +51,15 @@ The four public theorems are stated in [`KnightModel/MainResults.lean`](KnightMo
 
 ## Rank two and the second uncountable cardinal
 
-The theorem `exists_rank_two_scott_characterization` chooses a countable relational structure $M$ whose singletons all have disjointifying rank at most two. Assuming $\square_{\omega_1}$, its Scott sentence has a model of size $\aleph_2$ and every model has size at most $\aleph_2$. Some singleton of $M$ then has rank exactly two. The choice of $M$ is independent of the square sequence. [Theorem statement](KnightModel/RankTwo/ScottSpectrum.lean)
+The theorem `exists_rank_two_scott_characterization` chooses a countable relational structure $M$ whose singletons all have disjointifying rank at most two. Assuming $\square_{\omega_1}$, its Scott sentence has a model of size $\aleph_2$ and every model has size at most $\aleph_2$. Some singleton of $M$ then has rank exactly two. The choice of $M$ is independent of the square sequence. [Theorem statement](KnightModel/RankTwo/ScottSpectrum.lean) · [Equivalence with threadless square](KnightModel/RankTwo/WalkSquareThread.lean)
 
 The large model is constructed from square walks on $\omega_2$. The walks give compatible initial-segment charts on an ordered set of size $\aleph_2$. Adding the index, vector and frame sorts produces the large structure. A finite-tuple back-and-forth with $M$ proves that this structure satisfies its Scott sentence. [Square walks and charts](KnightModel/RankTwo/SquareAtlas.lean) · [Cardinality of the full model](KnightModel/RankTwo/ConcreteModel.lean) · [Scott equivalence](KnightModel/RankTwo/ConcreteScott.lean)
 
-The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Ordinal rank definition and finite-stage equivalence](KnightModel/RankTwo/RankOrdinal.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
+The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Allison, §4.2](https://arxiv.org/abs/2304.00139) · [Ordinal recursion and finite stages](KnightModel/RankTwo/RankOrdinal.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
 
 There is also a converse obstruction in ZFC. Any example with a model of size $\aleph_2$ yields an $\omega_1$-Kurepa tree or a special $\omega_2$-Aronszajn tree. Consequently, in the absence of both trees, all models of a Scott sentence with this singleton rank bound have size at most $\aleph_1$. [Tree alternative](KnightModel/RankTwo/NegativeTree.lean) · [Trees as partial orders](KnightModel/RankTwo/NegativeTreeOrder.lean) · [Cardinal consequence](KnightModel/RankTwo/Obstruction.lean)
 
-The same hypotheses force a countable elementary extension with continuum many ways of attaching it over its base, any two of which have no common elementary amalgam. [Amalgamation obstruction](KnightModel/RankTwo/AmalgamationObstruction.lean)
+The same hypotheses force a countable elementary extension with continuum many ways of attaching it over its base, any two of which have no common elementary amalgam. A separate sufficient criterion constructs an $\aleph_2$ model when a family of countable marked extensions admits base changes and countable unions. [Amalgamation obstruction](KnightModel/RankTwo/AmalgamationObstruction.lean) · [Marked-extension criterion](KnightModel/RankTwo/MarkedExtensionCriterion.lean)
 
 ## Building
 

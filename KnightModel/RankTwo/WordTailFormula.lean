@@ -65,6 +65,7 @@ theorem rawTailGraph_one (a : V) (x y : List V) :
     · rintro ⟨hn,_⟩
       exact (ha hn).elim
 
+-- The recursive tail equation expands both word graphs during simplification.
 set_option maxHeartbeats 1200000 in
 /-- The two branch witnesses are respectively a single-fold preimage and
 a single-translation preimage. The folded preimage never grows in length. -/

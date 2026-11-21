@@ -6,6 +6,7 @@ Authors: Shaun Allison
 import KnightModel.MainResults
 import KnightModel.RankTwo.ScottSpectrum
 import KnightModel.RankTwo.Obstruction
+import KnightModel.RankTwo.MarkedExtensionCriterion
 import KnightModel.RankTwo.AmalgamationObstruction
 import KnightModel.RankTwo.ScottFiniteDiagrams
 import Lean.Util.CollectAxioms
@@ -32,6 +33,8 @@ The `#print axioms` commands below are run by CI and their output appears in the
 
 #print axioms KnightModel.RankTwo.Scott.MarkedExtension.continuum_incompatible_of_large_model
 
+#print axioms KnightModel.RankTwo.Scott.MarkedExtension.aleph_two_of_marked_family
+
 -- Reject any additional axiom in the new results or their transitive dependencies.
 run_cmd
   let allowed := [``propext, ``Classical.choice, ``Quot.sound]
@@ -41,7 +44,8 @@ run_cmd
     ``KnightModel.RankTwo.Scott.cardinal_le_aleph_one_of_no_trees,
     ``KnightModel.RankTwo.Scott.countable_finite_diagrams_rank_one,
     ``KnightModel.RankTwo.Scott.countable_finite_diagrams_rank_two,
-    ``KnightModel.RankTwo.Scott.MarkedExtension.continuum_incompatible_of_large_model]
+    ``KnightModel.RankTwo.Scott.MarkedExtension.continuum_incompatible_of_large_model,
+    ``KnightModel.RankTwo.Scott.MarkedExtension.aleph_two_of_marked_family]
   for result in results do
     for ax in ← Lean.collectAxioms result do
       unless allowed.contains ax do
