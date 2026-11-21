@@ -2,6 +2,7 @@ import KnightModel.RankTwo.AmalgamationBaire
 import KnightModel.RankTwo.AmalgamationObstruction
 import KnightModel.RankTwo.AmalgamationRestrictionSize
 import KnightModel.RankTwo.MarkedExtensionCriterion
+import KnightModel.RankTwo.MarkedExtensionOmission
 import KnightModel.RankTwo.NegativeTreeOrder
 import KnightModel.RankTwo.Obstruction
 import KnightModel.RankTwo.ScottFiniteDiagrams

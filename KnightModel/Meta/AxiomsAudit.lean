@@ -7,6 +7,7 @@ import KnightModel.MainResults
 import KnightModel.RankTwo.ScottSpectrum
 import KnightModel.RankTwo.Obstruction
 import KnightModel.RankTwo.MarkedExtensionCriterion
+import KnightModel.RankTwo.MarkedExtensionOmission
 import KnightModel.RankTwo.AmalgamationObstruction
 import KnightModel.RankTwo.ScottFiniteDiagrams
 import Lean.Util.CollectAxioms
@@ -45,7 +46,8 @@ run_cmd
     ``KnightModel.RankTwo.Scott.countable_finite_diagrams_rank_one,
     ``KnightModel.RankTwo.Scott.countable_finite_diagrams_rank_two,
     ``KnightModel.RankTwo.Scott.MarkedExtension.continuum_incompatible_of_large_model,
-    ``KnightModel.RankTwo.Scott.MarkedExtension.aleph_two_of_marked_family]
+    ``KnightModel.RankTwo.Scott.MarkedExtension.aleph_two_of_marked_family,
+    ``KnightModel.RankTwo.Scott.MarkedExtension.Family.range_of_rank_one]
   for result in results do
     for ax in ← Lean.collectAxioms result do
       unless allowed.contains ax do
