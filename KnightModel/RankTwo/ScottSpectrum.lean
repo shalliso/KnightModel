@@ -15,6 +15,8 @@ namespace KnightModel.RankTwo
 
 open Cardinal Scott
 
+universe w
+
 /-- The fixed countable model has a Scott realization of size ℵ₂ under square. -/
 theorem square_realizes_small_scott {Ω I : Type} [Blueprint Ω] [KnightModel I Ω]
     [Nonempty I] [Countable I] (i : I) (hs : SquareAtOmegaOne) :
@@ -38,8 +40,8 @@ sentence characterizes ℵ₂ and some singleton has rank exactly two. -/
 theorem exists_rank_two_scott_characterization :
     ∃ (R : ℕ → Type) (_ : ∀ n, Countable (R n)) (M : Type) (_ : Countable M)
       (D : Scott.Model R M) (C : Presentation R M),
-      (∀ x, ModelRankLE D 2 [] x) ∧
-        (SquareAtOmegaOne → Characterizes D C (aleph 2) ∧ ∃ x, ¬ ModelRankLE D 1 [] x) := by
+      (∀ x, ModelOrdinalRankLE D 2 ∅ x) ∧
+        (SquareAtOmegaOne → Characterizes.{w} D C (aleph 2) ∧ ∃ x, ¬ ModelOrdinalRankLE D 1 ∅ x) := by
   obtain ⟨Ω, ⟨bp⟩⟩ := exists_blueprint
   letI := bp
   let I := Blueprint.Model Ω
@@ -54,10 +56,13 @@ theorem exists_rank_two_scott_characterization :
   have rank (x : M) : ModelRankLE D 2 [] x := Concrete.small_rankLE_two (Ω := Ω) i x
   have language (n : ℕ) : Countable (R n) :=
     inferInstanceAs (Countable (FrameRelation (BaseRelation Ω) Concrete.Name n))
-  refine ⟨R, language, M, Concrete.countable_small (Ω := Ω) i, D, C, rank, ?_⟩
+  refine ⟨R, language, M, Concrete.countable_small (Ω := Ω) i, D, C, ?_, ?_⟩
+  · exact fun x => (modelOrdinalRankLE_nat_empty D 2 x).mpr (rank x)
   intro hs
-  have spectrum : Characterizes D C (aleph 2) :=
+  have spectrum : Characterizes.{w} D C (aleph 2) :=
     characterizes_of_rank_two D C rank (square_realizes_small_scott (Ω := Ω) i hs)
-  exact ⟨spectrum, exists_not_rank_one_of_characterizes D C spectrum⟩
+  obtain ⟨x, high⟩ := exists_not_rank_one_of_characterizes D C spectrum
+  refine ⟨spectrum, x, ?_⟩
+  simpa using high ∘ (modelOrdinalRankLE_nat_empty D 1 x).mp
 
 end KnightModel.RankTwo

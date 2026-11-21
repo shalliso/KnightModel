@@ -55,9 +55,11 @@ The theorem `exists_rank_two_scott_characterization` chooses a countable relatio
 
 The large model is constructed from square walks on $\omega_2$. The walks give compatible initial-segment charts on an ordered set of size $\aleph_2$. Adding the index, vector and frame sorts produces the large structure. A finite-tuple back-and-forth with $M$ proves that this structure satisfies its Scott sentence. [Square walks and charts](KnightModel/RankTwo/SquareAtlas.lean) · [Cardinality of the full model](KnightModel/RankTwo/ConcreteModel.lean) · [Scott equivalence](KnightModel/RankTwo/ConcreteScott.lean)
 
-The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Rank definition](KnightModel/RankTwo/Rank.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
+The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Ordinal rank definition and finite-stage equivalence](KnightModel/RankTwo/RankOrdinal.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
 
 There is also a converse obstruction in ZFC. Any example with a model of size $\aleph_2$ yields an $\omega_1$-Kurepa tree or a special $\omega_2$-Aronszajn tree. Consequently, in the absence of both trees, all models of a Scott sentence with this singleton rank bound have size at most $\aleph_1$. [Tree alternative](KnightModel/RankTwo/NegativeTree.lean) · [Trees as partial orders](KnightModel/RankTwo/NegativeTreeOrder.lean) · [Cardinal consequence](KnightModel/RankTwo/Obstruction.lean)
+
+The same hypotheses force a countable elementary extension with continuum many ways of attaching it over its base, any two of which have no common elementary amalgam. [Amalgamation obstruction](KnightModel/RankTwo/AmalgamationObstruction.lean)
 
 ## Building
 

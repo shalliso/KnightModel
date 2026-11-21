@@ -13,7 +13,7 @@ rank of the countable source and lifts through its Scott back-and-forth.
 namespace KnightModel.RankTwo.Scott
 
 open Cardinal Set
-variable {R : ℕ → Type u} {M N : Type} {D : Model R M} {E : Model R N}
+variable {R : ℕ → Type u} {M : Type v} {N : Type w} {D : Model R M} {E : Model R N}
 variable (F : BackAndForth D E) (C : Presentation R M)
 
 /-- The target realizations of a pointed finite source orbit label. -/
@@ -41,13 +41,17 @@ private theorem union_of_orbits {n k : ℕ} (t : Tuple N k)
       obtain ⟨p, hp⟩ := mem_iUnion.mp h
       exact ⟨p.val.1, p.val.2, p.property, hp⟩
   rw [he]
+  apply Cardinal.lift_le.{v}.mp
   calc
-    #(⋃ p, sets p) ≤ Cardinal.sum (fun p => #(sets p)) := mk_iUnion_le_sum_mk
-    _ ≤ Cardinal.sum (fun _ : J => aleph n) :=
-      Cardinal.sum_le_sum _ _ fun p => bound _ _ p.property
-    _ = #J * aleph n := sum_const' _ _
-    _ ≤ aleph n * aleph n := mul_le_mul' ((mk_le_aleph0 (α := J)).trans (aleph0_le_aleph n)) le_rfl
-    _ = aleph n := mul_eq_self (aleph0_le_aleph n)
+    lift.{v} #(⋃ p, sets p) ≤ lift.{w} #J * ⨆ p, lift.{v} #(sets p) := mk_iUnion_le_lift sets
+    _ ≤ aleph n * aleph n := by
+      apply mul_le_mul'
+      · have count : lift.{w} #J ≤ ℵ₀ := by simp
+        exact count.trans (aleph0_le_aleph n)
+      · exact ciSup_le' fun p => by
+          simpa using (Cardinal.lift_le.mpr (bound _ _ p.property) :
+            lift.{v} #(sets p) ≤ lift.{v} (aleph n))
+    _ = lift.{v} (aleph n) := by simp [mul_eq_self (aleph0_le_aleph n)]
 
 include C in
 private theorem zeroFiber_subsingleton {k : ℕ} (s : Tuple M k) (x : M) (t : Tuple N k)
