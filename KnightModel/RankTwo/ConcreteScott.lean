@@ -9,25 +9,6 @@ namespace KnightModel.RankTwo.Concrete
 
 open Scott Cardinal
 
-instance {B K : ℕ → Type} [∀ n, Countable (B n)] [∀ n, Countable (K n)] (n : ℕ) :
-    Countable (FrameRelation B K n) := by
-  let Codes := (Σ k, B k) ⊕ (Unit ⊕ (Unit ⊕ (Σ k, K k)))
-  let decode : Codes → Σ k, FrameRelation B K k
-    | .inl ⟨k, b⟩ => ⟨k, .base b⟩
-    | .inr (.inl _) => ⟨1, .frame⟩
-    | .inr (.inr (.inl _)) => ⟨2, .below⟩
-    | .inr (.inr (.inr ⟨k, s⟩)) => ⟨k + 2, .transition s⟩
-  have onto : Function.Surjective decode := by
-    rintro ⟨_, r⟩
-    cases r with
-    | base b => exact ⟨.inl ⟨_, b⟩, rfl⟩
-    | frame => exact ⟨.inr (.inl ()), rfl⟩
-    | below => exact ⟨.inr (.inr (.inl ())), rfl⟩
-    | transition k => exact ⟨.inr (.inr (.inr ⟨_, k⟩)), rfl⟩
-  haveI : Countable (Σ k, FrameRelation B K k) := onto.countable
-  exact (show Function.Injective (Sigma.mk n : FrameRelation B K n → Σ k, FrameRelation B K k)
-    from sigma_mk_injective).countable
-
 variable {Ω I J : Type} [Blueprint Ω] [KnightModel I Ω] [KnightModel J Ω]
     [Nonempty I] [Nonempty J]
 

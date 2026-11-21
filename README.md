@@ -8,7 +8,7 @@ Knight JF. A complete Lω1ω-sentence characterizing ℵ1. Journal of Symbolic L
 
 A Knight model is a linear order $(K, <)$ with functions $f_1, f_2, \dots$ such that for every $a \in K$, the images $f_1(a), f_2(a), \dots$ injectively enumerates $(-\infty, a]$. Any such structure is $\omega_1$-like and therefore must have cardinality at most $\aleph_1$. Knight's result is that this is tight -- such a structure of cardinality $\aleph_1$ exists.
 
-Rather than formalizing Scott sentences and infinitary logic, we distill the notion of a Blueprint, which carries the same information as the Scott sentence. In particular, it characterizes the isomorphism class of any countable Knight model. It is a purely algebraic object: a right-cancellative monoid with additional axioms relating to right- and left-divisibility.
+For the original rank-one construction, we distill the notion of a Blueprint, which carries the same information as the Scott sentence. In particular, it characterizes the isomorphism class of any countable Knight model. It is a purely algebraic object: a right-cancellative monoid with additional axioms relating to right- and left-divisibility.
 
 From a Blueprint one can derive a Knight model, and to construct a Blueprint we use a Baire category argument (in the language of forcing). To construct a Knight model of cardinality $\aleph_1$, we use Zorn's lemma.
 
@@ -49,6 +49,14 @@ The four public theorems are stated in [`KnightModel/MainResults.lean`](KnightMo
 | `exists_aleph_one_model`          | For every blueprint, there exists a Knight model with `#α = ℵ₁`               |
 | `nonempty_knightIso_of_encodable` | Any two countable nonempty Knight models of the same blueprint are isomorphic |
 
+## Rank two and the second uncountable cardinal
+
+The theorem `exists_rank_two_scott_characterization` chooses a countable relational structure $M$ whose singletons all have disjointifying rank at most two. Assuming $\square_{\omega_1}$, its Scott sentence has a model of size $\aleph_2$ and every model has size at most $\aleph_2$. Some singleton of $M$ then has rank exactly two. The choice of $M$ is independent of the square sequence. [Theorem statement](KnightModel/RankTwo/ScottSpectrum.lean)
+
+The large model is constructed from square walks on $\omega_2$. The walks give compatible initial-segment charts on an ordered set of size $\aleph_2$. Adding the index, vector and frame sorts produces the large structure. A finite-tuple back-and-forth with $M$ proves that this structure satisfies its Scott sentence. [Square walks and charts](KnightModel/RankTwo/SquareAtlas.lean) · [Cardinality of the full model](KnightModel/RankTwo/ConcreteModel.lean) · [Scott equivalence](KnightModel/RankTwo/ConcreteScott.lean)
+
+The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Rank definition](KnightModel/RankTwo/Rank.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
+
 ## Building
 
 Prerequisites: [Lean 4](https://leanprover.github.io/lean4/doc/setup.html) and
@@ -73,6 +81,7 @@ Always run `lake exe cache get` before `lake build` in a fresh environment.
 ```text
 KnightModel/
 ├── MainResults.lean         # Public theorems (start here)
+├── RankTwo/                 # Scott sentences, square construction and rank bounds
 ├── PartialIso.lean          # partial maps API
 ├── Blueprint/               # Blueprint definition and instance
 ├── KnightAutGroup/          # KnightAutGroup definition and instance

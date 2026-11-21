@@ -125,8 +125,8 @@ private theorem single_preimage_length (a : Letter V) (t x : List V) (h : rawSin
   obtain ⟨T,X,rfl,rfl,hh⟩ := (rawSingleGraph_map_param a _ _).mp h
   simpa using ((prefixBounds_single (⟨0,le_rfl⟩ : Letter V) shiftOpenLetter a).sizes hh).1
 
-/-- Bound a word witness before interpreting it as a tuple of scalar quantifiers. -/
 omit [IsOrderedAddMonoid V] in
+/-- Bound a word witness before interpreting it as a tuple of scalar quantifiers. -/
 private theorem def_word_exists (qe : HeadElimination V) {k}
     (Q : (Fin k → V) → List V → Prop) (b : Nat)
     (symbolic : ∀ {m} (s : Fin k → Term V m) (w : List (Term V m)),
@@ -167,7 +167,6 @@ private theorem def_tail_subst (qe : HeadElimination V) {n}
           convert f.inter g using 1
           ext p
           simp only [Right,Set.mem_setOf_eq,Set.mem_inter_iff,Term.eval,eval_subst_word,Term.eval_subst]
-          rfl
         · intro p t h
           simpa only [evalWord,List.length_map] using single_preimage_length d t _ h.1
       let Left (z : List (Term V k)) (p : Fin k → V) (t : List V) :=

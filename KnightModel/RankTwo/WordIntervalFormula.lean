@@ -14,6 +14,17 @@ def letterIntervalGraph (v u x y : Word (Letter V)) : Prop :=
   ∃ h : v < u, ∃ z : Ioi (cons (⟨0,le_rfl⟩ : Letter V) root), x = z.val ∧
     y = (intervalIso shiftLetter ⟨0, le_rfl⟩ d hd shiftOpenLetter h z).val
 
+private theorem intervalForm (v u x y : Word (Letter V)) :
+    letterIntervalGraph d hd v u x y ↔ v < u ∧
+    ∃ t z : Word (Letter V), through shiftLetter u t = v ∧
+      TailGraph shiftLetter (⟨0, le_rfl⟩ : Letter V) d hd shiftOpenLetter t x z ∧
+      through shiftLetter u z = y := by
+  constructor
+  · rintro ⟨h, g⟩
+    exact ⟨h, (Word.interval_graph _ _ _ _ _ v u h x y).mp g⟩
+  · rintro ⟨h, g⟩
+    exact ⟨h, (Word.interval_graph _ _ _ _ _ v u h x y).mpr g⟩
+
 /-- A folded complementary-tail graph with its two bounded auxiliary words. -/
 def rawIntervalGraph (v u x y : List V) : Prop :=
   @LT.lt (Word V) inferInstance v u ∧ ∃ t : List V, t.length ≤ v.length ∧
@@ -43,17 +54,14 @@ private theorem tail_at_letters (t x z : List (Letter V)) :
 theorem rawIntervalGraph_map (v u x y : Word (Letter V)) :
     rawIntervalGraph d hd (List.map Subtype.val v) (List.map Subtype.val u)
       (List.map Subtype.val x) (List.map Subtype.val y) ↔ letterIntervalGraph d hd v u x y := by
+  rw [intervalForm]
   constructor
   · rintro ⟨hlt, t, _, z, _, htv, ht, hzy⟩
     obtain ⟨t', rfl⟩ := (exists_nonneg_word t).mpr htv.2.1
     obtain ⟨z', rfl⟩ := (exists_nonneg_word z).mpr hzy.2.1
-    have h := (word_map_val_lt _ _).mp hlt
-    exact ⟨h, (Word.interval_graph shiftLetter _ d hd shiftOpenLetter v u h x y).mpr
-      ⟨t', z', (fold_at_letters ..).mp htv, (tail_at_letters d hd ..).mp ht,
-        (fold_at_letters ..).mp hzy⟩⟩
-  · rintro ⟨h, hz⟩
-    obtain ⟨t, z, htv, ht, hzy⟩ :=
-      (Word.interval_graph shiftLetter _ d hd shiftOpenLetter v u h x y).mp hz
+    exact ⟨(word_map_val_lt v u).mp hlt, t', z', (fold_at_letters u t' v).mp htv,
+      (tail_at_letters d hd t' x z').mp ht, (fold_at_letters u z' y).mp hzy⟩
+  · rintro ⟨h, t, z, htv, ht, hzy⟩
     refine ⟨(word_map_val_lt v u).mpr h, List.map Subtype.val t, ?_,
       List.map Subtype.val z, ?_, (fold_at_letters ..).mpr htv, (tail_at_letters d hd ..).mpr ht,
       (fold_at_letters ..).mpr hzy⟩
@@ -85,5 +93,12 @@ theorem def_rawIntervalGraph_of_tail (qe : HeadElimination V)
   convert h using 1
   ext p
   simp only [rawIntervalGraph, evalWord, List.length_map, mem_setOf_eq, mem_inter_iff, Q]
+
+/-- Unconditional semilinearity of interval coordinates under vector
+quantifier elimination. -/
+theorem def_rawIntervalGraph (qe : HeadElimination V) (d : Letter V)
+    (hd : (⟨0, le_rfl⟩ : Letter V) < d) {k} (v u x y : List (Term V k)) :
+    Definable {p | rawIntervalGraph d hd (evalWord v p) (evalWord u p) (evalWord x p) (evalWord y p)} :=
+  def_rawIntervalGraph_of_tail d hd qe (def_rawTailGraph qe d hd) v u x y
 
 end KnightModel.RankTwo.Semilinear
