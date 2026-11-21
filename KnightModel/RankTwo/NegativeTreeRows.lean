@@ -20,11 +20,6 @@ variable (C : Presentation R M) (sat : BackAndForth.Satisfies E (C.sentence D))
 noncomputable abbrev F : BackAndForth D E := C.system D E sat
 abbrev singleton {X : Type} (x : X) := push x (Fin.elim0 : Tuple X 0)
 
-theorem lifts_iff_label {n} (s : Tuple M n) (t : Tuple N n) :
-    (F C sat).Lifts s t ↔ (C.label D s).Holds E t := by
-  refine ⟨fun h => ((F C sat).closure.holds_iff _ h).mp (C.self_label D s), ?_⟩
-  exact (F C sat).lifts_of_match (s := s) (t := t)
-
 /-- Extract a large actual singleton fiber and a strictly increasing comparison skeleton in it. -/
 theorem big_skeleton (size : aleph 2 ≤ #N) (rank : ∀ x, ModelRankLE D 2 [] x) :
     ∃ (x : M) (e : OmegaTwo ↪ orbitFiber (F C sat) Fin.elim0 x Fin.elim0),
@@ -49,7 +44,7 @@ theorem big_skeleton (size : aleph 2 ≤ #N) (rank : ∀ x, ModelRankLE D 2 [] x
   have big : ℵ₁ < #O := oneTwo.trans_le (hx.trans (mk_le_mk_of_subset sub))
   have memO : O.Nonempty := by
     by_contra h
-    simpa [not_nonempty_iff_eq_empty.mp h] using big
+    simp [not_nonempty_iff_eq_empty.mp h] at big
   have r : ModelRankLE D (1+1) (List.ofFn (Fin.elim0 : Tuple M 0)) x := by simpa using rank x
   have cmp := orbitFiber_dichotomy (F C sat) C Fin.elim0 x Fin.elim0 r memO
   rcases cmp with ⟨d,cap⟩ | pair

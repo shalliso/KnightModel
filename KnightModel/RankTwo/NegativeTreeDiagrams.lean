@@ -64,8 +64,8 @@ theorem color_eq {a b c d : N} (he : SentenceLabels.number C D E sat (push a (si
   ext k
   apply and_congr_right
   intro _
-  exact (lifts_iff_label C sat _ _).trans (((SentenceLabels.number_eq_iff C D E sat _ _).mp he _).trans
-    (lifts_iff_label C sat _ _).symm)
+  exact (SentenceLabels.lifts_iff C D E sat _ _).trans (((SentenceLabels.number_eq_iff C D E sat _ _).mp he _).trans
+    (SentenceLabels.lifts_iff C D E sat _ _).symm)
 
 private noncomputable def rowOn {A : Type} (g : A → N) (z : N) : Chart A where
   color i := color C sat (g i) z

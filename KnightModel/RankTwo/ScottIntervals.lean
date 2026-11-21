@@ -15,6 +15,7 @@ private abbrev tailR (i : I) (v : WI I) :=
 private abbrev normR (i : I) (v u : WI I) :=
   Word.HGraph Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter v u
 
+omit [Nonempty I] [Nonempty J] in
 private theorem single_match {p : ModelIsoCondition I J Ω} {a : Letter I} {b : Letter J}
     (ab : LetterMatch p a b) : GraphMatch p (singleR a) (singleR b) := by
   intro q qp x y x' y' xx yy
@@ -69,6 +70,7 @@ private abbrev rawR (i : I) (v u : WI I) (x y : WI I) :=
     y = (Word.intervalIso Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i)
       Word.shiftOpenLetter h z).val
 
+omit [Nonempty I] in
 private theorem raw_form (i : I) (v u x y : WI I) : rawR i v u x y ↔
     v < u ∧ ∃ t z : WI I, Word.through Word.shiftLetter u t = v ∧
       tailR i t x z ∧ Word.through Word.shiftLetter u z = y := by
@@ -99,6 +101,7 @@ private theorem raw_match {i : I} {j : J} {p : ModelIsoCondition I J Ω}
     raw_forward (ModelIsoCondition.mem_symm_graph.mpr (qp mark)) (vv.keep qp).symm (uu.keep qp).symm
       xx.symm yy.symm⟩
 
+omit [Nonempty I] in
 private theorem raw_norm (i : I) {v u : WI I} (e : ∀ h : v < u,
     Word.H Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter v u h =
     Word.intervalIso Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter h)

@@ -19,14 +19,17 @@ abbrev schemeGraph (i : I) (k : WordScheme) (s : WI I) :=
 namespace GraphMatch
 variable {p : ModelIsoCondition I J Ω} {r t : WI I → WI I → Prop} {s u : WI J → WI J → Prop}
 
+omit [Nonempty I] [Nonempty J] in
 theorem congr (h : GraphMatch p r s) (left : ∀ x y, r x y ↔ t x y)
     (right : ∀ x y, s x y ↔ u x y) : GraphMatch p t u :=
   fun _ e _ _ _ _ xx yy => (left _ _).symm.trans ((h e xx yy).trans (right _ _))
 
+omit [Nonempty I] [Nonempty J] in
 theorem inv (h : GraphMatch p r s) :
     GraphMatch p (fun x y => r y x) (fun x y => s y x) :=
   fun _ e _ _ _ _ xx yy => h e yy xx
 
+omit [Nonempty I] [Nonempty J] in
 theorem union (h : GraphMatch p r s) (k : GraphMatch p t u) :
     GraphMatch p (fun x y => r x y ∨ t x y) (fun x y => s x y ∨ u x y) :=
   fun _ e _ _ _ _ xx yy => (h e xx yy).or (k e xx yy)

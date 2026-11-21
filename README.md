@@ -57,6 +57,8 @@ The large model is constructed from square walks on $\omega_2$. The walks give c
 
 The rank bound is computed for the full automorphism group of $M$. A separate theorem gives the $\aleph_n$ upper bound for every model of a Scott sentence when all singleton ranks of the countable structure are at most the natural number $n$. [Rank definition](KnightModel/RankTwo/Rank.lean) · [Concrete rank bound](KnightModel/RankTwo/RankConcrete.lean) · [Cardinal bound](KnightModel/RankTwo/RestrictionCardinal.lean)
 
+There is also a converse obstruction in ZFC. Any example with a model of size $\aleph_2$ yields an $\omega_1$-Kurepa tree or a special $\omega_2$-Aronszajn tree. Consequently, in the absence of both trees, all models of a Scott sentence with this singleton rank bound have size at most $\aleph_1$. [Tree alternative](KnightModel/RankTwo/NegativeTree.lean) · [Trees as partial orders](KnightModel/RankTwo/NegativeTreeOrder.lean) · [Cardinal consequence](KnightModel/RankTwo/Obstruction.lean)
+
 ## Building
 
 Prerequisites: [Lean 4](https://leanprover.github.io/lean4/doc/setup.html) and

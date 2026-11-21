@@ -5,12 +5,13 @@ Authors: Shaun Allison
 -/
 import KnightModel.MainResults
 import KnightModel.RankTwo.ScottSpectrum
-import Mathlib.Util.AssertNoSorry
+import KnightModel.RankTwo.Obstruction
+import Lean.Util.CollectAxioms
 
 /-!
 # Axiom Audit
 
-This file mechanically checks that the public Knight model and rank-two spectrum theorems
+This file mechanically checks that the public Knight model, rank-two spectrum and tree obstruction theorems
 rely only on the three standard Lean/Mathlib foundational axioms:
 `propext`, `Classical.choice`, and `Quot.sound`.
 
@@ -24,10 +25,17 @@ The `#print axioms` commands below are run by CI and their output appears in the
 
 #print axioms KnightModel.RankTwo.exists_rank_two_scott_characterization
 
--- Reject a new axiom anywhere in the proof of the rank-two construction.
+#print axioms KnightModel.RankTwo.Scott.Negative.special_or_kurepa_of_rank
+#print axioms KnightModel.RankTwo.Scott.cardinal_le_aleph_one_of_no_trees
+
+-- Reject any additional axiom in the new results or their transitive dependencies.
 run_cmd
   let allowed := [``propext, ``Classical.choice, ``Quot.sound]
-  let used ← Lean.collectAxioms ``KnightModel.RankTwo.exists_rank_two_scott_characterization
-  for ax in used do
-    unless allowed.contains ax do
-      throwError "Unexpected axiom in rank-two construction: {ax}"
+  let results := [``KnightModel.RankTwo.exists_rank_two_scott_characterization,
+    ``KnightModel.RankTwo.Scott.cardinal_le_aleph_of_scott_rank,
+    ``KnightModel.RankTwo.Scott.Negative.special_or_kurepa_of_rank,
+    ``KnightModel.RankTwo.Scott.cardinal_le_aleph_one_of_no_trees]
+  for result in results do
+    for ax in ← Lean.collectAxioms result do
+      unless allowed.contains ax do
+        throwError "Unexpected axiom {ax} in {result}"
