@@ -37,14 +37,15 @@ private theorem typeLT_lt_at {s t : Set OmegaTwo} {x : OmegaTwo}
   let p : t := ⟨x, hx⟩
   let f (y : s) : Iio p := ⟨⟨y.val, (h y.val y.property).1⟩, (h y.val y.property).2⟩
   have he : typeLT s ≤ typeLT (Iio p) :=
-    (RelEmbedding.ofMonotone f (fun _ _ hxy => hxy)).ordinal_type_le
+    (RelEmbedding.ofMonotone (r := (· < ·)) (s := (· < ·)) f (fun _ _ hxy => hxy)).ordinal_type_le
   exact he.trans_lt (typein_lt_type (· < ·) p)
 
 private theorem height_increases {rows : OmegaTwo → Chart OmegaTwo}
     (trans : TransitiveRows rows) {b x y : OmegaTwo} (hxy : x < y) (hyb : y < b)
     (hc : (rows b).color x = (rows b).color y) (hr : (rows b).rel x y) :
     height (rows b) x < height (rows b) y := by
-  apply typeLT_lt_at (x := x) ⟨hxy, hc, hr⟩
+  apply typeLT_lt_at (s := earlierCone (rows b) x) (t := earlierCone (rows b) y)
+    (x := x) ⟨hxy, hc, hr⟩
   rintro z ⟨hzx, hcol, hrel⟩
   exact ⟨⟨hzx.trans hxy, hcol.trans hc, trans b z x y (hzx.trans (hxy.trans hyb))
     (hxy.trans hyb) hyb hcol hc hrel hr⟩, hzx⟩
@@ -86,7 +87,7 @@ private theorem countableType {s : Set OmegaTwo} (hs : s.Countable) :
 private theorem second_increases {C : Chart OmegaTwo} {x y : OmegaTwo}
     (hxy : x < y) (hc : C.color x = C.color y) (hh : height C x = height C y) :
     secondHeight C x < secondHeight C y := by
-  apply typeLT_lt_at (x := x) ⟨hxy, hc, hh⟩
+  apply typeLT_lt_at (s := sameHeight C x) (t := sameHeight C y) (x := x) ⟨hxy, hc, hh⟩
   rintro z ⟨hzx, hcz, hhz⟩
   exact ⟨⟨hzx.trans hxy, hcz.trans hc, hhz.trans hh⟩, hzx⟩
 
@@ -130,7 +131,7 @@ noncomputable def ClosedPrefix.label {rows : OmegaTwo → Chart OmegaTwo}
     ToType.mk ⟨secondHeight (rows p.endpoint) p.last,
       countableType (second_small H trans p.before)⟩)
 
-private def ordinalAt (v : OmegaOne) : Ordinal.{0} := v.toOrd.val
+private noncomputable def ordinalAt (v : OmegaOne) : Ordinal.{0} := v.toOrd.val
 
 private theorem ordinalAt_mk (v : Set.Iio (aleph.{0} 1).ord) :
     ordinalAt (ToType.mk v) = v.val := congrArg Subtype.val (ToType.mk.symm_apply_apply v)
@@ -167,7 +168,7 @@ theorem label_separates {rows : OmegaTwo → Chart OmegaTwo}
 
 /-- Exactly ℵ₁ labels are available. -/
 theorem cardinal_specializing_labels : #(ℕ × OmegaOne × OmegaOne) = ℵ₁ := by
-  simp only [mk_prod, mk_nat, mk_toType, card_ord, mul_eq_self (aleph0_le_aleph 1)]
+  simp only [mk_prod, Cardinal.lift_id, mk_nat, mk_toType, card_ord, mul_eq_self (aleph0_le_aleph 1)]
   exact aleph0_mul_eq (aleph0_le_aleph 1)
 
 end KnightModel.RankTwo.Restriction

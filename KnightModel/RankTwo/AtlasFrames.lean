@@ -15,7 +15,7 @@ Restriction divides two programs whose endpoints are in the indicated order;
 pasting extends the forced isomorphism between two proper initial intervals. -/
 structure CoordinateFamily (W : Type*) [LinearOrder W] [OrderTop W] where
   allowed : Set (W ↪o W)
-  id_mem : (OrderEmbedding.refl W) ∈ allowed
+  id_mem : ((OrderIso.refl W).toOrderEmbedding) ∈ allowed
   comp_mem : ∀ {h k}, h ∈ allowed → k ∈ allowed → k.trans h ∈ allowed
   restrict : ∀ {f g : W ↪o W}, f ∈ allowed → g ∈ allowed → f ⊤ ≤ g ⊤ →
     ∃ h ∈ allowed, ∀ w, g (h w) = f w
@@ -28,7 +28,7 @@ variable {W : Type*} [LinearOrder W] [OrderTop W] (C : CoordinateFamily W)
 
 abbrev Code := {f : W ↪o W // f ∈ C.allowed}
 
-def one : C.Code := ⟨OrderEmbedding.refl W, C.id_mem⟩
+def one : C.Code := ⟨(OrderIso.refl W).toOrderEmbedding, C.id_mem⟩
 
 def comp (h k : C.Code) : C.Code := ⟨k.val.trans h.val, C.comp_mem h.property k.property⟩
 
@@ -85,6 +85,7 @@ theorem present_change {a b : J} (hab : a ≤ b) (change_mem : D.change q hab �
 
 variable (allowed_change : ∀ {a b : J} (hab : a ≤ b), D.change q hab ∈ C.allowed)
 
+include allowed_change in
 /-- Every two frames have presentations in the same enclosing chart. -/
 theorem common_presentation (f g : D.Frames q C) : ∃ b : J, ∃ h k : C.Code,
     f = D.present q C b h ∧ g = D.present q C b k := by
@@ -98,6 +99,7 @@ private theorem realize_restriction {b : J} {h k e : C.Code}
     D.actFrame q C (D.present q C b h) e = D.present q C b k :=
   Subtype.ext (DFunLike.ext _ _ (fun w => congrArg (fun z => ((D.chart q b).symm z).val) (eqn w)))
 
+include allowed_change in
 theorem below_frame {f g : D.Frames q C} (h : f.val ⊤ ≤ g.val ⊤) :
     ∃ x : C.Code, D.actFrame q C g x = f := by
   obtain ⟨b,k,l,rfl,rfl⟩ := D.common_presentation q C allowed_change f g
@@ -106,6 +108,7 @@ theorem below_frame {f g : D.Frames q C} (h : f.val ⊤ ≤ g.val ⊤) :
   obtain ⟨e, he, hold⟩ := C.restrict k.property l.property h'
   exact ⟨⟨e,he⟩, D.realize_restriction q C hold⟩
 
+include allowed_change in
 /-- The frame endpoint order is precisely factorization by a permitted coordinate. -/
 theorem below_frame_iff {f g : D.Frames q C} :
     f.val ⊤ ≤ g.val ⊤ ↔ ∃ x : C.Code, D.actFrame q C g x = f := by

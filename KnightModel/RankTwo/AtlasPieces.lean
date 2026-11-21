@@ -137,7 +137,7 @@ theorem finite_guarded_rules (b c i : J) (hib : i ≤ b) (hic : i ≤ c) :
         r.rule.Rel shift o d hd upper (C.transports shift o d hd upper hgb w).val
           (C.transports shift o d hd upper hgc w).val := by
   classical
-  induction i using wellFounded_lt.induction with
+  induction i using (wellFounded_lt (α := J)).induction with
   | h i ih =>
     by_cases pos : ∃ j, j < i
     · have last : ∃ m < i, ∃ r : CoordinateRule A, ∀ g, m < g → (hgi : g ≤ i) →
@@ -160,7 +160,7 @@ theorem finite_guarded_rules (b c i : J) (hib : i ≤ b) (hic : i ≤ c) :
       intro g hgb hgc w
       obtain ⟨cover, valid⟩ := hrs g hgb hgc w
       have guard : lastRule.contains (C.transports shift o d hd upper hgb w).val ↔ m < g ∧ g ≤ i := by
-        simp only [lastRule, GuardedRule.contains, Option.mem_some_iff, forall_eq]
+        simp only [lastRule, GuardedRule.contains, Option.mem_some_iff, forall_eq']
         rw [C.transport_le_mark_iff shift o d hd upper hgb hib]
         rw [← not_le, C.transport_le_mark_iff shift o d hd upper hgb (hmi.le.trans hib), not_le]
       constructor
@@ -198,7 +198,7 @@ theorem change_graph {a b : J} (hab : a ≤ b) :
     ∃ rs : List (GuardedRule A), ∀ x y : Word A,
       C.markedRows.change (C.transports shift o d hd upper) hab x = y ↔
       ∃ r ∈ rs, r.contains x ∧ r.rule.Rel shift o d hd upper x y := by
-  let q := C.transports shift o d hd upper
+  let q : C.markedRows.Transports := C.transports shift o d hd upper
   obtain ⟨rs, hrs⟩ := C.finite_guarded_rules shift o d hd upper a b a le_rfl hab
   refine ⟨rs, ?_⟩
   intro x y

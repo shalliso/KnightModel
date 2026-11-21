@@ -1,4 +1,3 @@
-import KnightModel.MainResults
 import KnightModel.RankTwo.WalkSquare
 import KnightModel.RankTwo.Alphabet
 import KnightModel.RankTwo.AtlasCardinal
@@ -19,7 +18,7 @@ open Cardinal Set
 
 /-- Indices of the outer line. This small type, unlike the set of ordinals
 below ω₂ viewed as a subtype of all ordinals, lives in the carrier universe. -/
-abbrev OuterIndex := (aleph 2).ord.ToType
+abbrev OuterIndex : Type := (aleph 2).ord.ToType
 
 noncomputable section
 
@@ -42,28 +41,18 @@ def knightTransports (S : SquareLadders OuterIndex (aleph 1).ord)
         simp [Finsupp.single_eq_of_ne hj.ne']
       · simp) Word.shiftOpenLetter
 
-/-- Existence of the large ordered line and its cofinal family of actual
-charts. Both the index order and the chart alphabet come from the construction. -/
-theorem exists_square_atlas (hs : SquareAtOmegaOne) :
-    ∃ (Ω I : Type) (_ : Blueprint Ω) (_ : KnightModel I Ω)
-      (X : Type) (_ : LinearOrder X), #I = ℵ₁ ∧ #X = aleph 2 ∧
+/-- The principal segments of the actual outer line over an uncountable Knight
+index order. -/
+theorem squareAtlas_on (S : SquareLadders OuterIndex (aleph 1).ord) (hunc : ¬ Countable I) :
+    ∃ (X : Type) (_ : LinearOrder X), #X = aleph 2 ∧
       ∃ a : OuterIndex ↪o X, (∀ x, ∃ b, x ≤ a b) ∧
         ∀ b, Nonempty (Iic (a b) ≃o Word (Letter I)) := by
-  obtain ⟨Ω, ⟨hΩ⟩⟩ := exists_blueprint
-  letI := hΩ
-  obtain ⟨I, hK, hI⟩ := exists_aleph_one_model (Ω := Ω)
-  letI := hK
-  have hunc : ¬ Countable I := by
-    intro hc
-    exact aleph0_lt_aleph_one.not_ge (hI ▸ mk_le_aleph0_iff.mpr hc)
-  haveI : Nonempty I := not_isEmpty_iff.mp (fun h => hunc (by letI := h; infer_instance))
-  obtain ⟨S⟩ := hs
   let C := knightLadders (Ω := Ω) S hunc
   let D := C.markedRows
-  let q := knightTransports (Ω := Ω) S hunc (Classical.choice ‹Nonempty I›)
+  let q : D.Transports := knightTransports (Ω := Ω) S hunc (Classical.choice ‹Nonempty I›)
   have wordBound : #(Word (Letter I)) ≤ aleph 2 :=
-    (cardinal_words_le_aleph_one (Ω := Ω)).trans (aleph_le_aleph.mpr (by decide : (1 : Ordinal) ≤ 2))
-  refine ⟨Ω, I, hΩ, hK, D.Outer, inferInstance, hI, D.mk_outer_omega_two wordBound,
+    (cardinal_words_le_aleph_one (Ω := Ω)).trans (aleph_le_aleph.mpr (one_le_two : (1 : Ordinal) ≤ 2))
+  refine ⟨D.Outer, inferInstance, D.mk_outer_omega_two wordBound,
     OrderEmbedding.ofStrictMono D.anchor D.anchor_strictMono, ?_, fun b => ⟨D.chart q b⟩⟩
   intro x
   exact ⟨D.index x, D.le_anchor_iff.mpr le_rfl⟩

@@ -73,12 +73,12 @@ private theorem finite_bound {k : Nat} (f : Fin k → Nat) : ∃ n, ∀ i, f i �
 
 variable (F)
 
-/-- Alternating enumeration of the two carriers produces a genuine isomorphism. -/
-noncomputable def isoOfEnumerations (h : F.matchTuples (n := 0) Fin.elim0 Fin.elim0)
+/-- Alternating enumeration extends any matched finite tuple to an isomorphism. -/
+noncomputable def pointedIsoOfEnumerations {n} {s : Tuple M n} {t : Tuple N n} (h : F.matchTuples s t)
     (a : Nat → M) (ha : ∀ x, ∃ i, a i = x)
-    (b : Nat → N) (hb : ∀ y, ∃ i, b i = y) : RelIso D E := by
+    (b : Nat → N) (hb : ∀ y, ∃ i, b i = y) : {e : RelIso D E // ∀ i, e.toFun (s i) = t i} := by
   classical
-  let p : F.Stage := ⟨0, Fin.elim0, Fin.elim0, h⟩
+  let p : F.Stage := ⟨n, s, t, h⟩
   let S := stages p a b
   let G (x : M) (y : N) := ∃ i, (S i).Mem x y
   have total (x : M) : ∃ y, G x y := by
@@ -101,10 +101,11 @@ noncomputable def isoOfEnumerations (h : F.matchTuples (n := 0) Fin.elim0 Fin.el
     exact hk ▸ hl ▸ hk' ▸ hl' ▸ e
   let f := fun x => (total x).choose
   let g := fun y => (onto y).choose
-  refine { toFun := f, invFun := g
-           leftInv := fun x => (eq_iff (onto (f x)).choose_spec (total x).choose_spec).mpr rfl
-           rightInv := fun y => (eq_iff (total (g y)).choose_spec (onto y).choose_spec).mp rfl
-           map_rel := ?_ }
+  refine ⟨{ toFun := f, invFun := g
+            leftInv := fun x => (eq_iff (onto (f x)).choose_spec (total x).choose_spec).mpr rfl
+            rightInv := fun y => (eq_iff (total (g y)).choose_spec (onto y).choose_spec).mp rfl
+            map_rel := ?_ }, fun i => (eq_iff (total (s i)).choose_spec
+             (show G (s i) (t i) from ⟨0, i, rfl, rfl⟩)).mp rfl⟩
   intro k r t
   let idx (i : Fin k) := (total (t i)).choose_spec.choose
   obtain ⟨j, hj⟩ := finite_bound idx
@@ -116,6 +117,12 @@ noncomputable def isoOfEnumerations (h : F.matchTuples (n := 0) Fin.elim0 Fin.el
   have e := F.atoms (S j).ok (.rel r vars)
   change D r ((S j).s ∘ vars) ↔ E r ((S j).t ∘ vars) at e
   simpa only [hs, ht] using e
+
+/-- Alternating enumeration of the two carriers produces a genuine isomorphism. -/
+noncomputable def isoOfEnumerations (h : F.matchTuples (n := 0) Fin.elim0 Fin.elim0)
+    (a : Nat → M) (ha : ∀ x, ∃ i, a i = x)
+    (b : Nat → N) (hb : ∀ y, ∃ i, b i = y) : RelIso D E :=
+  (F.pointedIsoOfEnumerations h a ha b hb).val
 
 end BackAndForth
 

@@ -105,7 +105,7 @@ noncomputable def complete (hw : 1 ≤ width) : SquareLadders J width where
       change type (α := P) (· < ·) ≤ width
       rcases isEmpty_or_nonempty P with he | hn
       · rw [type_eq_zero_iff_isEmpty.mpr he]
-        exact Ordinal.zero_le _
+        exact zero_le
       · letI := hn
         rwa [type_eq_one_of_unique]
 

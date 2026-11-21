@@ -26,19 +26,20 @@ full function all of whose initial restrictions appear in the tree. -/
 def FullChart (rows : OmegaTwo → Chart OmegaTwo) (C : Chart OmegaTwo) :=
   ∀ a, C.comap (Subtype.val : Iio a → _) ∈ chartLevel rows a
 
-private theorem one_lt_two : ℵ₁ < aleph.{0} 2 := aleph_lt_aleph.mpr (by decide)
+private theorem one_lt_two : ℵ₁ < aleph.{0} 2 := aleph_lt_aleph.mpr _root_.one_lt_two
 
 private theorem bounded_below_two {s : Set OmegaTwo} (hs : #s ≤ ℵ₁) :
     ∃ a : OmegaTwo, ∀ x ∈ s, x < a := by
-  apply Order.not_isCofinal_iff.mp
+  apply not_isCofinal_iff.mp
   intro h
   have hc := Order.cof_le h
-  have hr : IsRegular (aleph.{0} 2) := isRegular_aleph_add_one 1
+  have hr : Cardinal.IsRegular (aleph.{0} 2) := by
+    simpa only [one_add_one_eq_two] using isRegular_aleph_add_one 1
   rw [Ordinal.cof_toType, hr.cof_ord] at hc
   exact one_lt_two.not_ge (hc.trans hs)
 
 private theorem has_later (i : OmegaTwo) : ∃ j, i < j := by
-  obtain ⟨j, hj⟩ := bounded_below_two (s := {i}) (by simp)
+  obtain ⟨j, hj⟩ := bounded_below_two (s := {i}) (by simpa using one_le_aleph0.trans (aleph0_le_aleph 1))
   exact ⟨j, hj i (mem_singleton i)⟩
 
 private theorem chart_agreement {rows : OmegaTwo → Chart OmegaTwo} {C : Chart OmegaTwo}
@@ -87,9 +88,11 @@ theorem no_full_chart {rows : OmegaTwo → Chart OmegaTwo} (H : LocalCharts rows
       exact ⟨hy'.trans_le hab, (col y hy').symm.trans (hxy.1.trans (col x hx)),
         (rel y hy' x hx).mp hxy.2⟩)
     exact aleph0_lt_aleph_one.not_ge (hs ▸ le_aleph0_iff_set_countable.mpr hc)
+  have hr : Cardinal.IsRegular (aleph.{0} 2) := by
+    simpa only [one_add_one_eq_two] using isRegular_aleph_add_one 1
   obtain ⟨n, hn⟩ := infinite_pigeonhole C.color
     (by simpa only [mk_toType, card_ord] using aleph0_le_aleph 2)
-    (by simpa only [mk_nat, mk_toType, card_ord, (isRegular_aleph_add_one 1).cof_ord]
+    (by simpa only [mk_nat, mk_toType, card_ord, hr.cof_ord]
           using aleph0_lt_aleph_one.trans one_lt_two)
   let F := C.color ⁻¹' {n}
   have bound : #F ≤ ℵ₁ := by
@@ -100,7 +103,7 @@ theorem no_full_chart {rows : OmegaTwo → Chart OmegaTwo} (H : LocalCharts rows
         ⟨w.val.val, w.val.property.trans v.property.symm, w.property⟩
       haveI : Countable {y // C.color y = C.color v.val ∧ C.rel y v.val} := small v.val
       exact Function.Injective.countable (f := intoCone) (fun u w e =>
-        Subtype.ext (Subtype.ext (congrArg Subtype.val e)))
+        Subtype.ext (Subtype.ext (congrArg (fun t : {y // C.color y = C.color v.val ∧ C.rel y v.val} => t.val) e)))
     simpa only [succ_aleph0] using
       cardinal_le_succ_of_pair_cover (X := F) (κ := ℵ₀) le_rfl lower hs
         (fun x y => cmp x.val y.val (x.property.trans y.property.symm))
@@ -114,7 +117,7 @@ def SmallTraces (rows : OmegaTwo → Chart OmegaTwo) :=
 
 private def oneFiltration {X : Type} (f : X ↪ OmegaOne) : Filtration omegaOneStages X where
   mem i x := f x ≤ i
-  mono h h' := le_trans h' h
+  mono := fun {_ _} h {_} hx => le_trans hx h
   exhaustive x := ⟨f x, le_rfl⟩
 
 private theorem countable_oneFiltration {X : Type} (f : X ↪ OmegaOne) (i : OmegaOne) :
@@ -149,7 +152,7 @@ noncomputable def kurepaOfWideLevel {rows : OmegaTwo → Chart OmegaTwo}
   let s : Set (Iio a) := {x | F.mem i x}
   have htrace := small a s (countable_oneFiltration f i)
   let p₀ : Chart (F.Piece i) := F.trace (chart a) i
-  haveI : Nonempty (Chart (F.Piece i)) := ⟨p₀⟩
+  haveI : Nonempty (Chart s) := ⟨p₀⟩
   obtain ⟨g, hg⟩ := countable_iff_exists_subset_range.mp htrace
   exact ⟨g, fun _ ⟨b, hb⟩ => hg ⟨e b, hb.symm⟩⟩
 

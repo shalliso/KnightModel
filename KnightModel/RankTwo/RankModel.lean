@@ -1,7 +1,7 @@
 import KnightModel.RankTwo.RankFrame
 import KnightModel.RankTwo.ScottIso
-import Mathlib.Algebra.Group.Action.End
-import Mathlib.Algebra.Group.Subgroup.Actions
+import Mathlib.Algebra.Group.End
+import Mathlib.Algebra.Group.Subgroup.Defs
 
 /-! # Disjointifying rank for the full automorphism group of a relational model -/
 
@@ -31,6 +31,12 @@ def automorphismEquivRelIso (D : Model R M) : ↥(automorphismGroup D) ≃ RelIs
     apply Subtype.ext
     exact Equiv.ext fun _ => rfl
   right_inv f := by cases f; rfl
+
+/-- The natural action of the full automorphism group on the carrier of the model. -/
+instance modelAutAction (D : Model R M) : MulAction ↥(automorphismGroup D) M where
+  smul p x := p.val x
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
 
 /-- Finite disjointifying-rank bounds for the actual automorphisms of `D`. -/
 abbrev ModelRankLE (D : Model R M) (n : ℕ) (B : List M) (x : M) : Prop :=
