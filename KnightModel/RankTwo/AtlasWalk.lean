@@ -11,7 +11,7 @@ open Set
 
 /-- Insert a prefix, with a possible extra fold at its final boundary. -/
 structure TailShape (A : Type*) where
-  prefix : List A
+  «prefix» : List A
   extra : Option A
 
 namespace TailShape
@@ -106,7 +106,7 @@ theorem shape_apply_of_le_mark {b a i : J} {h : TailShape A}
         rcases Word.cons_le_cons_iff.mp hw with h | ⟨h, _⟩
         · exact h.trans hlt
         · exact h ▸ hlt
-      simp [TailShape.endWord, he, Word.through, Word.foldStep, hkt]
+      simp [TailShape.endWord, he, Word.through, Word.foldStep, Word.cons, hkt]
 
 noncomputable def limitSectorIso {b a : J} (hab : a ≤ b) (pos : ∃ i, i < a)
     (hlim : ∀ n < a, ∃ i, n < i ∧ i < a) (h : TailShape A) (hh : C.Fits b a h) :
@@ -148,6 +148,7 @@ noncomputable def succSectorIso {p a b : J} (hpa : p < a) (hab : a ≤ b)
   ((source.trans (Word.H shift o d hd upper _ _ h₀).symm).trans
     (Word.H shift o d hd upper _ _ h₁)).trans target.symm
 
+omit [WellFoundedLT J] in
 theorem interior_of_no_previous {a : J} (hp : ¬∃ p < a, ∀ i < a, i ≤ p) :
     ∀ n < a, ∃ i, n < i ∧ i < a := by
   intro n hn

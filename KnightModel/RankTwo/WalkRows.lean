@@ -1,4 +1,4 @@
-import KnightModel.RankTwo.WalkSquare
+import KnightModel.RankTwo.Walk
 import KnightModel.RankTwo.Words
 import KnightModel.RankTwo.Atlas
 
@@ -22,7 +22,7 @@ theorem mark_of_lt {b g : J} (h : g < b) :
 
 /-- A marked row embeds the entire initial interval, including its endpoint. -/
 theorem mark_strictMonoOn (b : J) : StrictMonoOn (C.mark b) (Set.Iic b) := by
-  induction b using wellFounded_lt.induction with
+  induction b using (wellFounded_lt (α := J)).induction with
   | h b ih =>
     intro x hx y hy hxy
     change y ≤ b at hy

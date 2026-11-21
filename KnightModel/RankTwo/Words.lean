@@ -1,6 +1,6 @@
 import Mathlib.Data.List.Lex
-import Mathlib.Order.Hom.Set
-import Mathlib.Order.Hom.Lex
+import Mathlib.Order.Hom.Basic
+import Mathlib.Order.Interval.Set.Defs
 import Mathlib.Algebra.Order.Group.Basic
 
 /-!
@@ -31,7 +31,7 @@ def root : Word A := []
 def cons (a : A) (w : Word A) : Word A := a :: w
 
 /-- Attach a finite prefix. -/
-def prepend (s : List A) (w : Word A) : Word A := s ++ (w : List A)
+def prepend (s : List A) (w : Word A) : Word A := List.append (α := A) s w
 
 @[simp] theorem prepend_nil (w : Word A) : prepend [] w = w := rfl
 
@@ -121,8 +121,7 @@ theorem strictMono_foldStep (a : A) (shift : Set.Ici a ≃o A)
     | nil =>
       change cons b w < root at h
       by_cases hb : b < a
-      · simpa [foldStep, hb] using
-          (show cons b w < cons a (f root) from cons_lt_cons_iff.mpr (.inl hb))
+      · simp [foldStep, hb]
       · simpa [foldStep, hb] using hf (cons_lt_root (shift ⟨b, le_of_not_gt hb⟩) w)
     | cons c v =>
       change cons b w < cons c v at h
@@ -193,12 +192,13 @@ noncomputable def throughIso (shift : ∀ a : A, Set.Ici a ≃o A) (u : Word A) 
     Word A ≃o Set.Iic u :=
   let f (w : Word A) : Set.Iic u :=
     ⟨through shift u w, (range_through shift u _).mp ⟨w, rfl⟩⟩
-  StrictMono.orderIsoOfSurjective f
-    (fun _ _ h => strictMono_through shift u h)
-    (by
-      intro z
-      obtain ⟨w, hw⟩ := (range_through shift u z.1).mpr z.2
-      exact ⟨w, Subtype.ext hw⟩)
+  have hm : StrictMono f := fun _ _ h => strictMono_through shift u h
+  have hs : Function.Surjective f := by
+    intro z
+    obtain ⟨w, hw⟩ := (range_through shift u z.1).mpr z.2
+    exact ⟨w, Subtype.ext hw⟩
+  { toEquiv := Equiv.ofBijective f ⟨hm.injective, hs⟩
+    map_rel_iff' := hm.le_iff_le }
 
 @[simp] theorem through_root (shift : ∀ a : A, Set.Ici a ≃o A) (u : Word A) :
     through shift u root = u := by

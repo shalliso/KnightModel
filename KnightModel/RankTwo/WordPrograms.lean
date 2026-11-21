@@ -83,7 +83,7 @@ private theorem foldStep_eq_of_decode (a : A) (s : Set.Ici a ≃o A)
             change (if h : t.1 < a then _ else _) = _
             rw [dif_neg (not_lt_of_ge t.2)]
             change cons a (f (cons (s t) y)) = cons a w
-            simpa [t] using congrArg (cons a) hy
+            simpa [t, cons] using congrArg (cons a) hy
       · simp [unfoldStep, ht, heq] at h
 
 theorem unthrough_eq_some_iff (shift : ∀ a : A, Set.Ici a ≃o A) (u z x : Word A) :
@@ -130,6 +130,11 @@ private theorem unfoldStep_inspects (a : A) (s : Set.Ici a ≃o A) (n : Nat)
     (g : Word A → Option (Word A)) (hg : InspectsAtMost n g) :
     InspectsAtMost (n+2) (unfoldStep a s g) := by
   have hu := hg.bind (unshift_inspects a s)
+  have eqfun : (fun w : List A => (g w).bind fun z => some (unshift a s z)) =
+      (fun w : List A => (g w).map (unshift a s)) := by
+    funext w
+    cases g w <;> rfl
+  have hu' := Eq.mp (congrArg (fun f : List A → Option (List A) => InspectsAtMost (n+1) f) eqfun) hu
   intro p suffix hp
   cases p with
   | nil => simp at hp
@@ -138,14 +143,14 @@ private theorem unfoldStep_inspects (a : A) (s : Set.Ici a ≃o A) (n : Nat)
       simp only [List.length_cons] at hp
       omega
     by_cases ht : t < a
-    · simp [unfoldStep, ht, cons]
+    · simp only [List.cons_append, unfoldStep, if_pos ht]
+      rfl
     · by_cases heq : t = a
       · subst t
-        have aux := hu p suffix hlen
-        change (g (p ++ suffix)).bind (fun z => some (unshift a s z)) =
-          ((g p).bind (fun z => some (unshift a s z))).map (· ++ suffix) at aux
-        simpa [unfoldStep, Option.map_eq_bind] using aux
-      · simp [unfoldStep, ht, heq]
+        simp only [List.cons_append, unfoldStep, lt_irrefl, if_false, if_true]
+        exact hu' p suffix hlen
+      · simp only [List.cons_append, unfoldStep, if_neg ht, if_neg heq]
+        rfl
 
 /-- The partial inverse reads at most two further letters per folded cone. -/
 theorem unthrough_inspects (shift : ∀ a : A, Set.Ici a ≃o A) (u : Word A) :

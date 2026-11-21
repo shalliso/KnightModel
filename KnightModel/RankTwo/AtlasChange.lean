@@ -100,6 +100,7 @@ theorem range_change {a b : J} (hab : a ≤ b) :
     rw [← D.chart_anchor q hab]
     exact (D.chart q b).monotone x.property
   · intro hw
+    change w ≤ D.mark b a at hw
     let y := (D.chart q b).symm w
     have hy : y.val ≤ D.anchor a := by
       change y ≤ (⟨D.anchor a, D.le_anchor_iff.mpr hab⟩ : Set.Iic (D.anchor b))

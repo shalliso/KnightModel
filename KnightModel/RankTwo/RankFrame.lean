@@ -194,6 +194,7 @@ def HasCanonicalParameters (G I A : Type*) [Group G] [Zero A] [MulAction G (I �
   ∀ u v, r u v → ∃ (n : ℕ) (p : Fin n → I →₀ A),
     ∀ g : G, g • v = v → (g • u = u ↔ ∀ j, g • p j = p j)
 
+omit [LinearOrder I] [MulAction G I] in
 /-- To obtain canonical parameters, it suffices that each nonempty fiber of one
 transition scheme has a member fixed by every group element preserving that
 fiber setwise. No choice of scheme across different pairs is needed. -/

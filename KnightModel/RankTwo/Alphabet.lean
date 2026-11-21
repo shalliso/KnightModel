@@ -52,7 +52,7 @@ theorem cardinal_vectorGroup_le_aleph_one {Ω I : Type} [Blueprint Ω] [KnightMo
   · letI := hI
     exact (mk_le_aleph0_iff.mpr inferInstance).trans (aleph0_le_aleph 1)
   · letI := hI
-    rw [mk_finsupp_of_infinite', mkRat]
+    rw [mk_finsupp_of_infinite', Cardinal.mkRat]
     exact max_le (KnightModel.knightModel_card_le_aleph_one (Ω := Ω)) (aleph0_le_aleph 1)
 
 /-- The alphabet and all its words fit into ℵ₁. -/

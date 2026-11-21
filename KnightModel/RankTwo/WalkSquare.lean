@@ -35,10 +35,10 @@ variable {width : Ordinal.{u}} (S : SquareLadders J width)
 /-- The slot of a visited vertex is strictly below the width, even when the
 whole ladder has order type equal to the width. -/
 noncomputable def position (b : J) (x : S.ladder b) : Iio width :=
-  ⟨Ordinal.typein (· < ·) x, (Ordinal.typein_lt_type _ x).trans_le (S.orderType_le b)⟩
+  ⟨Ordinal.typein LT.lt x, (Ordinal.typein_lt_type LT.lt x).trans_le (S.orderType_le b)⟩
 
 theorem position_strictMono (b : J) : StrictMono (S.position b) :=
-  fun _ _ h => (Ordinal.typein_lt_typein (· < ·)).mpr h
+  fun _ _ h => (Ordinal.typein_lt_typein LT.lt).mpr h
 
 /-- The order type before a member is unchanged upon restriction to a
 coherent ladder containing it. -/
@@ -47,14 +47,14 @@ theorem position_coherent {b d x : J} (hdb : d < b) (hpos : ∃ n, n < d)
     (hb : x ∈ S.ladder b) (hd : x ∈ S.ladder d) :
     S.position b ⟨x, hb⟩ = S.position d ⟨x, hd⟩ := by
   have hc := S.coherent hdb hpos hlim
+  have restrict (z : J) : z ∈ S.ladder d ↔ z ∈ S.ladder b ∧ z < d := by
+    rw [hc]
+    rfl
   let E : Iio (⟨x, hb⟩ : S.ladder b) ≃o Iio (⟨x, hd⟩ : S.ladder d) :=
     { toEquiv :=
-        { toFun := fun y => ⟨⟨y.val.val, by rw [hc]; exact ⟨y.val.property, y.property.trans hx⟩⟩,
+        { toFun := fun y => ⟨⟨y.val.val, (restrict _).mpr ⟨y.val.property, y.property.trans hx⟩⟩,
               y.property⟩
-          invFun := fun y => ⟨⟨y.val.val, by
-              have h := y.val.property
-              rw [hc] at h
-              exact h.1⟩, y.property⟩
+          invFun := fun y => ⟨⟨y.val.val, ((restrict _).mp y.val.property).1⟩, y.property⟩
           left_inv := fun _ => rfl
           right_inv := fun _ => rfl }
       map_rel_iff' := Iff.rfl }
@@ -69,11 +69,13 @@ noncomputable def labelled (mark : Iio width ↪o A) : CoherentLadders J A where
   label b x := mark (S.position b x)
   label_strictMono b := mark.strictMono.comp (S.position_strictMono b)
   closed := S.closed
-  coherent hdb hp hl x hx := by
+  coherent := by
+    intro b d hdb hp hl x hx
     rw [S.coherent hdb hp hl]
     exact ⟨fun h => ⟨h, hx⟩, fun h => h.1⟩
-  label_coherent hdb hp hl _ hx hb hd :=
-    congrArg mark (S.position_coherent hdb hp hl hx hb hd)
+  label_coherent := by
+    intro b d hdb hp hl x hx hb hd
+    exact congrArg mark (S.position_coherent hdb hp hl hx hb hd)
 
 end SquareLadders
 

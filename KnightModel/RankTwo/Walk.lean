@@ -30,7 +30,7 @@ structure CoherentLadders (J : Type u) (A : Type v) [LinearOrder J] [LinearOrder
   coherent : ∀ {b d}, d < b → (∃ n, n < d) → LadderLimit (ladder b) d →
     ∀ {x}, x < d → (x ∈ ladder b ↔ x ∈ ladder d)
   label_coherent : ∀ {b d}, d < b → (∃ n, n < d) → LadderLimit (ladder b) d →
-    ∀ {x} (hxd : x < d) (hb : x ∈ ladder b) (hd : x ∈ ladder d),
+    ∀ {x} (_ : x < d) (hb : x ∈ ladder b) (hd : x ∈ ladder d),
       label b ⟨x, hb⟩ = label d ⟨x, hd⟩
 
 namespace CoherentLadders
@@ -64,10 +64,12 @@ theorem next_mono {b g d : J} (hd : d < b) (hgd : g ≤ d) :
 noncomputable def slot (b g : J) (h : g < b) : A :=
   C.label b ⟨C.next b g h, C.next_mem h⟩
 
+local instance : WellFoundedRelation J := ⟨(· < ·), wellFounded_lt⟩
+
 /-- `word b g` records a minimal walk from `b` down to `g`. The empty word
 also totalizes the definition at targets above its domain. -/
 noncomputable def word (b g : J) : List A :=
-  if h : g < b then C.slot b g h :: C.word (C.next b g h) g else []
+  if h : g < b then C.slot b g h :: word (C.next b g h) g else []
 termination_by b
 decreasing_by exact C.next_lt _
 
@@ -103,10 +105,9 @@ theorem next_at_limit {b d x : J} (hdb : d < b) (hx : x < d)
     C.next b x (hx.trans hdb) = C.next d x hx := by
   obtain ⟨t, ht, hxt, htd⟩ := hlim x hx
   have hsmall := (C.next_le (hx.trans hdb) ht hxt.le).trans_lt htd
-  have hc := C.coherent hdb ⟨x, hx⟩ hlim
   apply le_antisymm
-  · exact C.next_le _ ((hc (C.next_lt hx)).mpr (C.next_mem hx)) (C.le_next hx)
-  · exact C.next_le _ ((hc hsmall).mp (C.next_mem _)) (C.le_next _)
+  · exact C.next_le _ ((C.coherent hdb ⟨x, hx⟩ hlim (C.next_lt hx)).mpr (C.next_mem hx)) (C.le_next hx)
+  · exact C.next_le _ ((C.coherent hdb ⟨x, hx⟩ hlim hsmall).mp (C.next_mem _)) (C.le_next _)
 
 theorem word_at_limit {b d x : J} (hdb : d < b) (hx : x < d)
     (hlim : LadderLimit (C.ladder b) d) : C.word b x = C.word d x := by
@@ -129,7 +130,7 @@ theorem tail {b d : J} (hdb : d ≤ b) (hpos : ∃ n, n < d) :
       (C.word b d = s ∨ ∃ a, C.word b d = s ++ [a] ∧
         ∀ x (hx : x < d), C.slot d x hx < a) := by
   classical
-  induction b using wellFounded_lt.induction with
+  induction b using (wellFounded_lt (α := J)).induction with
   | h b ih =>
     obtain he | hbd := eq_or_lt_of_le hdb
     · subst b

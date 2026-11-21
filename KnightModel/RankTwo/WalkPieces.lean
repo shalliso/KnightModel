@@ -61,7 +61,7 @@ theorem finite_prefix_rules {b c d : J} (hdb : d ≤ b) (hdc : d ≤ c) :
       (∀ r ∈ rs, PrefixRule.Valid C b c r) ∧
       (∀ x, x ≤ d ↔ ∃ r ∈ rs, r.guard.Holds x) := by
   classical
-  induction d using wellFounded_lt.induction with
+  induction d using (wellFounded_lt (α := J)).induction with
   | h d ih =>
     let atD : PrefixRule J A := ⟨.point d, C.word b d, C.word c d⟩
     have hdok : PrefixRule.Valid C b c atD := by
@@ -104,8 +104,8 @@ theorem finite_prefix_rules {b c d : J} (hdb : d ≤ b) (hdc : d ≤ c) :
           · exact ((hcover x).mpr ⟨r, hr, hg⟩).trans hu.le
     · refine ⟨[atD], ?_, ?_⟩
       · intro r hr
-        simpa only [List.mem_singleton] at hr
-        exact hr ▸ hdok
+        have he := List.mem_singleton.mp hr
+        exact he ▸ hdok
       · intro x
         constructor
         · intro hx

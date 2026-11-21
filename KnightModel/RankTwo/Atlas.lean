@@ -1,6 +1,7 @@
 import Mathlib.Data.Prod.Lex
 import Mathlib.Order.Hom.Basic
 import Mathlib.Order.WellFounded
+import Mathlib.Order.Interval.Set.Basic
 
 /-! # The outer line of a marked atlas
 
@@ -27,7 +28,7 @@ def sector (b a : J) : Set W :=
   {w | w ≤ D.mark b a ∧ ∀ i < a, D.mark b i < w}
 
 theorem mark_mem_sector {a b : J} (hab : a ≤ b) : D.mark b a ∈ D.sector b a :=
-  ⟨le_rfl, fun i hi => D.mark_strictMonoOn b (hi.le.trans hab) hab hi⟩
+  ⟨le_rfl, fun _ hi => D.mark_strictMonoOn b (hi.le.trans hab) hab hi⟩
 
 theorem sector_lt_sector {b a c : J} (hac : a < c)
     {x y : W} (hx : x ∈ D.sector b a) (hy : y ∈ D.sector b c) : x < y :=

@@ -1,4 +1,6 @@
 import KnightModel.RankTwo.Words
+import Mathlib.Order.Hom.Set
+import Mathlib.Order.Hom.Lex
 
 /-!
 # Complementary tails of word charts
@@ -37,9 +39,12 @@ def underTail {X Y : Type*} [LinearOrder X] [LinearOrder Y] {u : Y}
   toFun w := ⟨(e w.1).1, e.strictMono w.2, (e w.1).2⟩
   invFun w := ⟨e.symm ⟨w.1, w.2.2⟩, by
     apply e.lt_iff_lt.mp
-    simpa only [OrderIso.apply_symm_apply] using w.2.1⟩
+    rw [e.apply_symm_apply]
+    exact w.2.1⟩
   left_inv _ := Subtype.ext (e.symm_apply_apply _)
-  right_inv w := Subtype.ext (congrArg Subtype.val (e.apply_symm_apply ⟨w.1, w.2.2⟩))
+  right_inv w := by
+    apply Subtype.ext
+    exact congrArg (fun q : Iic u => q.1) (e.apply_symm_apply ⟨w.1, w.2.2⟩)
   map_rel_iff' := e.le_iff_le
 
 @[simp] theorem singleton_lt_cons_iff {a t : A} {w : Word A} :
@@ -56,7 +61,8 @@ private theorem relabelHead_above {a b : A} (e : Ioi a ≃o Ioi b)
   | nil => exact cons_lt_root _ _
   | cons t w =>
     have ht := singleton_lt_cons_iff.mp hx
-    simpa [relabelHead, ht] using (e ⟨t, ht⟩).2
+    simp only [relabelHead, dif_pos ht]
+    exact singleton_lt_cons_iff.mpr (e ⟨t, ht⟩).2
 
 private theorem relabelHead_strict {a b : A} (e : Ioi a ≃o Ioi b)
     {x y : Word A} (hx : cons a root < x) (hy : cons a root < y) (hxy : x < y) :
@@ -66,7 +72,7 @@ private theorem relabelHead_strict {a b : A} (e : Ioi a ≃o Ioi b)
   | cons s x =>
     have hs := singleton_lt_cons_iff.mp hx
     cases y with
-    | nil => simpa [relabelHead, hs] using cons_lt_root (e ⟨s, hs⟩).1 x
+    | nil => simp [relabelHead, hs]
     | cons t y =>
       have ht := singleton_lt_cons_iff.mp hy
       simp only [relabelHead, dif_pos hs, dif_pos ht, cons_lt_cons_iff]
@@ -84,7 +90,8 @@ private theorem relabelHead_inv {a b : A} (e : Ioi a ≃o Ioi b)
     change relabelHead b a e.symm (if h : a < t then _ else _) = _
     rw [dif_pos ht]
     change (if h : b < (e ⟨t, ht⟩).1 then _ else _) = _
-    rw [dif_pos (e ⟨t, ht⟩).2]
+    have he : b < (e ⟨t, ht⟩).1 := (e ⟨t, ht⟩).2
+    rw [dif_pos he]
     exact congrArg (fun z : Ioi a => cons z.1 w) (e.symm_apply_apply ⟨t, ht⟩)
 
 /-- Changing the first letter identifies the tails above two singleton words. -/
@@ -158,10 +165,9 @@ noncomputable def intervalIso
   have hz : (e z).1 = v := congrArg Subtype.val (e.apply_symm_apply ⟨v, h.le⟩)
   have hroot : z ≠ root := by
     intro heq
-    have hmax : (⟨u, le_rfl⟩ : Iic u) ≤ e root :=
-      e.monotone (le_root (e.symm ⟨u, le_rfl⟩)) |> fun q => by simpa using q
-    rw [← heq] at hmax
-    exact (not_le_of_gt h) (hz ▸ (show u ≤ (e z).1 from hmax))
+    rw [heq] at hz
+    change through shift u root = v at hz
+    exact h.ne (hz ▸ (through_root shift u))
   exact (tailIso shift o d hd upper z hroot).trans <|
     (underTail e z).trans <| OrderIso.setCongr _ _ (congrArg (fun w => Ioc w u) hz)
 
@@ -197,9 +203,16 @@ theorem H_prepend (shift : ∀ a : A, Ici a ≃o A) (o d : A) (hd : o < d)
   | nil => rfl
   | cons a s ih =>
     simp only [prepend_cons]
-    rw [show H shift o d hd upper (cons a (prepend s v)) (cons a (prepend s u)) _ =
-        (H shift o d hd upper (prepend s v) (prepend s u) _).trans
-          (prependInterval [a] (prepend s v) (prepend s u)) by simp [H, cons]]
+    have hs := (prepend_lt_prepend_iff s).mpr h
+    have he : H shift o d hd upper (cons a (prepend s v)) (cons a (prepend s u))
+        (cons_lt_cons_self.mpr hs) =
+        (H shift o d hd upper (prepend s v) (prepend s u) hs).trans
+          (prependInterval [a] (prepend s v) (prepend s u)) := by
+      change H shift o d hd upper (a :: (prepend s v : List A)) (a :: (prepend s u : List A)) _ = _
+      rw [H]
+      rw [dif_pos rfl]
+      rfl
+    rw [he]
     exact congrArg (cons a) ih
 
 section Alphabet

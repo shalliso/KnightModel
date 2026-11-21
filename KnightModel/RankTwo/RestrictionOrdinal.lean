@@ -23,7 +23,7 @@ private theorem countable_bounded {s : Set OmegaOne} (hs : s.Countable) : BddAbo
 noncomputable def omegaOneStages : Stages OmegaOne where
   start := Classical.choice (show Nonempty OmegaOne by
     rw [Ordinal.nonempty_toType_iff]
-    simp)
+    exact (Ordinal.omega_pos 1).ne')
   le := (· ≤ ·)
   refl := le_refl
   trans := le_trans

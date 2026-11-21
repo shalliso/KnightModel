@@ -19,7 +19,7 @@ theorem cardinal_le_succ_of_pair_cover {X : Type u} {κ : Cardinal.{u}} (hκ : �
     (compare : ∀ x y, x ∈ lower y ∨ y ∈ lower x) : #X ≤ Order.succ κ := by
   by_contra! h
   obtain ⟨S, hS⟩ := le_mk_iff_exists_set.mp h.le
-  have cover : (⋃ x : S, lower x.val) = univ := by
+  have cover : (⋃ x : S, lower x.val) = Set.univ := by
     apply eq_univ_of_forall
     intro y
     by_contra hy
@@ -43,7 +43,7 @@ theorem cardinal_frames_le_aleph_two {F V : Type} (hV : #V ≤ ℵ₁)
     (encode : ∀ v, Nonempty (lower v ↪ ℕ × List V)) : #F ≤ aleph 2 := by
   have small (v : F) : #(lower v) ≤ ℵ₁ := calc
     #(lower v) ≤ #(ℕ × List V) := (encode v).elim fun f => mk_le_of_injective f.injective
-    _ = ℵ₀ * #(List V) := by rw [mk_prod, mk_nat]
+    _ = ℵ₀ * #(List V) := by simp [mk_prod]
     _ ≤ ℵ₁ * ℵ₁ := mul_le_mul' (aleph0_le_aleph 1)
       ((mk_list_le_max V).trans (max_le (aleph0_le_aleph 1) hV))
     _ = ℵ₁ := mul_eq_self (aleph0_le_aleph 1)
