@@ -16,7 +16,7 @@ variable {k : ℕ}
 
 /-- Constant Boolean tests, including the two empty-word base cases. -/
 theorem def_word_false : Definable {p : Fin k → V | False} :=
-  ⟨.ltZero (.const 0), fun _ => (lt_irrefl _).iff_false.symm⟩
+  ⟨.ltZero (.const 0), fun _ => ⟨False.elim, lt_irrefl _⟩⟩
 
 theorem def_word_true : Definable {p : Fin k → V | True} := by
   simpa only [Set.compl_setOf, not_false_eq_true] using
@@ -31,8 +31,9 @@ theorem def_term_le (a b : Term V k) : Definable {p | a.eval p ≤ b.eval p} := 
   simpa only [Set.compl_setOf, not_lt] using (def_term_lt b a).compl
 
 theorem def_term_eq (a b : Term V k) : Definable {p | a.eval p = b.eval p} := by
-  simpa only [Set.setOf_inter_eq_sep, le_antisymm_iff] using
-    (def_term_le a b).inter (def_term_le b a)
+  convert (def_term_le a b).inter (def_term_le b a) using 1
+  ext p
+  exact le_antisymm_iff
 
 theorem def_word_nonneg (w : List (Term V k)) :
     Definable {p | ∀ v ∈ evalWord w p, 0 ≤ v} := by
@@ -60,31 +61,59 @@ theorem def_word_eq (x y : List (Term V k)) :
 
 /-- Here the order on the word type has the root as its greatest element. -/
 theorem def_word_lt (x y : List (Term V k)) :
-    Definable {p | (evalWord x p : Word V) < (evalWord y p : Word V)} := by
+    Definable {p | @LT.lt (Word V) ((inferInstance : LinearOrder (Word V)).toLT) (evalWord x p) (evalWord y p)} := by
   induction x generalizing y with
   | nil =>
     convert (def_word_false (k := k) (V := V)) using 1
     ext p
-    exact (Word.le_root (evalWord y p : Word V)).not_gt.iff_false
+    exact ⟨(Word.le_root (evalWord y p : Word V)).not_gt, False.elim⟩
   | cons a x ih =>
     cases y with
     | nil =>
       convert (def_word_true (k := k) (V := V)) using 1
       ext p
-      exact (Word.cons_lt_root (a.eval p) (evalWord x p : Word V)).iff_true
+      exact ⟨fun _ => trivial, fun _ => Word.cons_lt_root (a.eval p) (evalWord x p)⟩
     | cons b y =>
       convert (def_term_lt a b).union ((def_term_eq a b).inter (ih y)) using 1
       ext p
-      exact Word.cons_lt_cons_iff
+      exact Word.cons_lt_cons_iff (a := a.eval p) (b := b.eval p)
+        (u := evalWord x p) (v := evalWord y p)
 
 theorem def_word_le (x y : List (Term V k)) :
-    Definable {p | (evalWord x p : Word V) ≤ (evalWord y p : Word V)} := by
+    Definable {p | @LE.le (Word V) ((inferInstance : LinearOrder (Word V)).toLE) (evalWord x p) (evalWord y p)} := by
   simpa only [Set.compl_setOf, not_lt] using (def_word_lt y x).compl
 
 theorem def_word_prepend (s x y : List (Term V k)) :
     Definable {p | (Word.prepend (evalWord s p) (evalWord x p) : Word V) = evalWord y p} := by
-  simpa only [Word.prepend, evalWord, List.map_append] using def_word_eq (s ++ x) y
+  convert def_word_eq (s ++ x) y using 1
+  ext p
+  simp only [mem_setOf_eq, evalWord, List.map_append, Word.prepend]
+  rfl
 
+omit [Module ℚ V] [IsOrderedAddMonoid V] in
+/-- Coercion of all letters to the ambient group preserves the order in which
+the root is greatest. -/
+theorem word_map_val_lt (u v : Word (Letter V)) :
+    @LT.lt (Word V) inferInstance (List.map Subtype.val u) (List.map Subtype.val v) ↔ u < v := by
+  induction u generalizing v with
+  | nil =>
+    exact ⟨fun h => ((Word.le_root (List.map Subtype.val v : Word V)).not_gt h).elim,
+      fun h => ((Word.le_root v).not_gt h).elim⟩
+  | cons a u ih =>
+    cases v with
+    | nil => exact ⟨fun _ => Word.cons_lt_root a u, fun _ => Word.cons_lt_root a.val _⟩
+    | cons b v =>
+      change Word.cons a.val (List.map Subtype.val u) < Word.cons b.val (List.map Subtype.val v) ↔
+        Word.cons a u < Word.cons b v
+      rw [Word.cons_lt_cons_iff, Word.cons_lt_cons_iff, ih v, Subtype.val_inj]
+      rfl
+
+omit [Module ℚ V] [IsOrderedAddMonoid V] in
+theorem word_map_val_le (u v : Word (Letter V)) :
+    @LE.le (Word V) inferInstance (List.map Subtype.val u) (List.map Subtype.val v) ↔ u ≤ v :=
+  le_iff_le_iff_lt_iff_lt.mpr (word_map_val_lt v u)
+
+omit [Module ℚ V] [IsOrderedAddMonoid V] in
 theorem exists_nonneg_word (w : List V) :
     (∃ v : List (Letter V), v.map Subtype.val = w) ↔ ∀ x ∈ w, 0 ≤ x := by
   constructor

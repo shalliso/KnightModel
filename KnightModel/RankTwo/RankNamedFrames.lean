@@ -39,7 +39,7 @@ theorem FrameInterpretation.transition_definable
 /-- Naming the base structure and the transition programs forces singleton
 rank at most two in the full relational model. Only coverage of codes and
 semilinearity of their program parameter fibers enter from program semantics. -/
-theorem namedFrame_rankLE_two_of_samples
+private theorem namedFrame_rankLE_two_of_samples
     (iso : G → V ≃o V) (iso_map : ∀ g x, iso g x = (vx).map g x)
     (sample_pres : ∀ g, UnaryChoice.Preserves
       (P := vectorSamples (unitLetter i₀).val (unitLetter_pos i₀)) (iso g))
@@ -74,5 +74,16 @@ theorem namedFrame_rankLE_two_of_samples
   exact threeSort_modelRankLE_two T.model e equiv (fixesBelow_of_knight (index_commutes i₀ T base_eq))
     (index_monotone i₀ T base_eq) (coefficient_map i₀ T base_eq) A.Below A.below_total
     (fun g {u v} => (T.invariant_below g ((fx).map g) ((fx).incl_map g) u v).mp) params x
+
+include i₀ base_eq in
+/-- All singleton ranks in the named frame model are at most two when every
+code has a vector-parameter presentation and its parameter fibers are semilinear. -/
+theorem namedFrame_rankLE_two
+    (covers : ∀ c : C, ∃ (n : ℕ) (k : K n) (p : Fin n → V), T.run k (Sum.inr ∘ p) = some c)
+    (definable : ∀ {n} (k : K n) (c : C), Definable {p : Fin n → V |
+      T.run k (Sum.inr ∘ p) = some c}) (x : BasePoints I ⊕ F) :
+    ModelRankLE T.model 2 [] x :=
+  namedFrame_rankLE_two_of_samples i₀ T base_eq (vectorOrderIso i₀ T base_eq)
+    (fun _ _ => rfl) (preserves_samples i₀ T base_eq) covers definable x
 
 end KnightModel.RankTwo.Scott

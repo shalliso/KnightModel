@@ -1,11 +1,9 @@
-import KnightModel.RankTwo.ConcreteModel
-import KnightModel.RankTwo.ProgramDefinabilityLift
-import KnightModel.RankTwo.RankNamedFrames
-import KnightModel.RankTwo.RestrictionCardinal
+import KnightModel.RankTwo.ProgramDefinabilityComposites
+import KnightModel.RankTwo.RankConcrete
+import KnightModel.RankTwo.RankWordPrimitives
 import KnightModel.RankTwo.RestrictionSkeleton
 import KnightModel.RankTwo.RestrictionSpecial
-import KnightModel.RankTwo.ScottSchemes
+import KnightModel.RankTwo.ScottSpectrum
 import KnightModel.RankTwo.SquareAtlasExistence
 import KnightModel.RankTwo.WalkSquareLimit
-import KnightModel.RankTwo.WordBounds
-import KnightModel.RankTwo.WordScalar
+import KnightModel.RankTwo.WordIntervalFormula

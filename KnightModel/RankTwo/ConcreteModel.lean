@@ -18,6 +18,29 @@ abbrev Name (n : ℕ) := {k : WordScheme // k.arity = n}
 
 noncomputable section
 
+/-- The language has only countably many relation symbols across all arities. -/
+instance {Ω : Type} [Countable Ω] : Countable (Σ n, FrameRelation (BaseRelation Ω) Name n) := by
+  let decode : (Σ n, BaseRelation Ω n) ⊕ (Bool ⊕ WordScheme) →
+      Σ n, FrameRelation (BaseRelation Ω) Name n
+    | .inl ⟨_,r⟩ => ⟨_,.base r⟩
+    | .inr (.inl false) => ⟨_,.frame⟩
+    | .inr (.inl true) => ⟨_,.below⟩
+    | .inr (.inr k) => ⟨_,.transition (⟨k,rfl⟩ : Name k.arity)⟩
+  have surj : Function.Surjective decode := by
+    rintro ⟨n,r⟩
+    cases r with
+    | base r => exact ⟨.inl ⟨_,r⟩,rfl⟩
+    | frame => exact ⟨.inr (.inl false),rfl⟩
+    | below => exact ⟨.inr (.inl true),rfl⟩
+    | transition k =>
+      obtain ⟨k,rfl⟩ := k
+      exact ⟨.inr (.inr k),rfl⟩
+  exact surj.countable
+
+instance {Ω : Type} [Countable Ω] (n : Nat) : Countable (FrameRelation (BaseRelation Ω) Name n) :=
+  (show Function.Injective (Sigma.mk n : FrameRelation (BaseRelation Ω) Name n → Σ m, _) from
+    sigma_mk_injective).countable
+
 section Coordinates
 variable {I : Type} [LinearOrder I]
 
@@ -66,6 +89,40 @@ theorem run_letters_iff {n : ℕ} (i : I) (k : Name n) (p : Fin n → Letter I) 
     exact h
   · exact fun h => ⟨p,fun _ => rfl,h⟩
 
+/-- Validity can be tested on the interpreted word relation without a
+previously chosen coordinate or a presentation of that coordinate. -/
+theorem run_exists_iff {n : ℕ} (i : I) (k : Name n) (p : Fin n → Letter I) :
+    (∃ c, run i k (fun j => Sum.inr (p j).val) = some c) ↔
+    ∃ e : Word (Letter I) ↪o Word (Letter I), CoordinateFamily.FullInitial e ∧
+      ∀ x y, k.val.Rel Word.shiftLetter ⟨0,le_rfl⟩ (unitLetter i) (zero_lt_unit i)
+        Word.shiftOpenLetter (List.ofFn p) x y ↔ e x = y := by
+  constructor
+  · rintro ⟨c,hc⟩
+    exact ⟨c.val,c.property.2,(run_letters_iff i k p c).mp hc⟩
+  · rintro ⟨e,he,hg⟩
+    let c : Code i := ⟨e,⟨k.val,List.ofFn p,(List.length_ofFn.trans k.property.symm),hg⟩,he⟩
+    exact ⟨c,(run_letters_iff i k p c).mpr hg⟩
+
+/-- A code has proper image exactly when its graph omits a target word. -/
+theorem proper_iff_gap {i : I} (c : Code i) :
+    c.val ⊤ < ⊤ ↔ ∃ z, ∀ x, c.val x ≠ z := by
+  constructor
+  · intro h
+    refine ⟨⊤,fun x hx => ?_⟩
+    have hle : c.val x ≤ c.val ⊤ := c.val.monotone le_top
+    rw [hx] at hle
+    exact (not_le_of_gt h) hle
+  · rintro ⟨z,h⟩
+    apply lt_of_le_of_ne le_top
+    intro he
+    have hz : z ∈ Set.range c.val := by
+      rw [c.property.2]
+      change z ≤ c.val ⊤
+      rw [he]
+      exact le_top
+    obtain ⟨x,hx⟩ := hz
+    exact h x hx
+
 /-- Every allowed concrete coordinate occurs among the named, parameterized maps. -/
 theorem run_covers (i : I) (c : Code i) :
     ∃ (n : ℕ) (k : Name n) (t : Tuple (BasePoints I) n), run i k t = some c := by
@@ -74,10 +131,18 @@ theorem run_covers (i : I) (c : Code i) :
     (run_letters_iff _ _ _ _).mpr ?_⟩
   simpa only [Graph,List.ofFn_get] using h
 
+/-- Coverage in the vector-only format used by the rank argument. -/
+theorem run_covers_vectors (i : I) (c : Code i) :
+    ∃ (n : ℕ) (k : Name n) (v : Fin n → VectorGroup I), run i k (Sum.inr ∘ v) = some c := by
+  obtain ⟨n,k,t,ht⟩ := run_covers i c
+  obtain ⟨p,_,h⟩ := run_eq_some.mp ht
+  exact ⟨n,k,fun j => (p j).val,(run_letters_iff _ _ _ _).mpr h⟩
+
 abbrev SmallFrames (i : I) := (family i).ProperFrames
 
-abbrev smallAction (i : I) : FrameAction (Code i) (SmallFrames i) :=
-  smallFrameAction Word.shiftLetter ⟨0,le_rfl⟩ (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter
+abbrev smallAction (i : I) : FrameAction (Code i) (SmallFrames i) := by
+  letI : Nonempty I := ⟨i⟩
+  exact smallFrameAction Word.shiftLetter ⟨0,le_rfl⟩ (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter
 
 end Coordinates
 
@@ -87,7 +152,7 @@ variable {Ω I : Type} [Blueprint Ω] [KnightModel I Ω]
 def smallInterpretation (i : I) : FrameInterpretation (BaseRelation Ω) Name (BasePoints I) (smallAction i) where
   base := baseModel i
   run := run i
-  faithful f c e h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.val.injective
+  faithful f _ _ h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.val.injective
     (congrArg (fun g : SmallFrames i => g.val.val w) h)))
 
 abbrev SmallCarrier (I : Type) [LinearOrder I] (i : I) :=
@@ -115,7 +180,7 @@ def largeInterpretation (S : SquareLadders OuterIndex (aleph 1).ord) (unc : ¬Co
     FrameInterpretation (BaseRelation Ω) Name (BasePoints I) (largeAction (Ω := Ω) S unc i) where
   base := baseModel i
   run := run i
-  faithful f c e h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.injective
+  faithful f _ _ h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.injective
     (congrArg (fun g : LargeFrames (Ω := Ω) S unc i => g.val w) h)))
 
 abbrev LargeCarrier (S : SquareLadders OuterIndex (aleph 1).ord) (unc : ¬Countable I) (i : I) :=
@@ -137,7 +202,7 @@ theorem mk_large (S : SquareLadders OuterIndex (aleph 1).ord) (unc : ¬Countable
   apply le_antisymm
   · calc
       #I + #(VectorGroup I) + aleph 2 ≤ aleph 2 + aleph 2 + aleph 2 :=
-        add_le_add_right (add_le_add hI hV) _
+        add_le_add (add_le_add hI hV) le_rfl
       _ = aleph 2 := by rw [add_eq_self (aleph0_le_aleph 2), add_eq_self (aleph0_le_aleph 2)]
   · exact le_add_self
 

@@ -71,6 +71,37 @@ private theorem transport_witness {G X : Type*} [Group G] [MulAction G X]
   simpa only [List.map_cons, smul_inv_smul, he, hz] using h
 
 include C in
+/-- The source witness clause gives a single lower-rank bound at every target base. -/
+theorem orbitFiber_witness {n k : ℕ} (s : Tuple M k) (x : M) (t : Tuple N k)
+    (witness : ∃ c : M, ∀ c', Conjugate ↥(automorphismGroup D) (List.ofFn s) c c' →
+      ModelRankLE D n (c' :: List.ofFn s) x) (inhabited : (orbitFiber F s x t).Nonempty) :
+    ∃ d, orbitFiber F s x t ⊆ lowFiber F n (push d t) := by
+  obtain ⟨c,hc⟩ := witness
+  obtain ⟨y₀,hy₀⟩ := inhabited
+  obtain ⟨d, hd⟩ := F.closure.forth (hy₀.tail F) c
+  refine ⟨d, ?_⟩
+  intro y hy
+  obtain ⟨z, h⟩ := F.closure.back hd y
+  obtain ⟨g, hg, hgx⟩ := F.conjugate_of_lifts C hy (h.eraseSecond F)
+  refine ⟨z, push c s, ?_, h⟩
+  rw [ofFn_push]
+  exact transport_witness g hg hgx hc
+
+include C in
+/-- The comparison clause of the source rank also transfers uniformly. -/
+theorem orbitFiber_compare {n k : ℕ} (s : Tuple M k) (x : M) (t : Tuple N k)
+    (hc : ∀ z, Conjugate ↥(automorphismGroup D) (List.ofFn s) x z →
+      ModelRankLE D n (z :: List.ofFn s) x ∨ ModelRankLE D n (x :: List.ofFn s) z) :
+    ∀ y ∈ orbitFiber F s x t, ∀ z ∈ orbitFiber F s x t,
+      z ∈ lowFiber F n (push y t) ∨ y ∈ lowFiber F n (push z t) := by
+  intro y hy z hz
+  obtain ⟨x', h⟩ := F.closure.back hz y
+  have conj := F.conjugate_of_lifts C hy (h.eraseSecond F)
+  rcases hc x' conj with hx | hx'
+  · exact Or.inl ⟨x, push x' s, ofFn_push x' s ▸ hx, h.exchange F⟩
+  · exact Or.inr ⟨x', push x s, ofFn_push x s ▸ hx', h⟩
+
+include C in
 /-- Either one target witness captures the entire pointed orbit at the next
 lower rank, or every pair is compared at that lower rank. This is the
 successor rank dichotomy transferred from the source automorphism group. -/
@@ -79,23 +110,8 @@ theorem orbitFiber_dichotomy {n k : ℕ} (s : Tuple M k) (x : M) (t : Tuple N k)
     (∃ d, orbitFiber F s x t ⊆ lowFiber F n (push d t)) ∨
     ∀ y ∈ orbitFiber F s x t, ∀ z ∈ orbitFiber F s x t,
       z ∈ lowFiber F n (push y t) ∨ y ∈ lowFiber F n (push z t) := by
-  rcases rank with ⟨c, hc⟩ | hc
-  · obtain ⟨y₀, hy₀⟩ := inhabited
-    obtain ⟨d, hd⟩ := F.closure.forth (hy₀.tail F) c
-    refine Or.inl ⟨d, ?_⟩
-    intro y hy
-    obtain ⟨z, h⟩ := F.closure.back hd y
-    obtain ⟨g, hg, hgx⟩ := F.conjugate_of_lifts C hy (h.eraseSecond F)
-    refine ⟨z, push c s, ?_, h⟩
-    rw [ofFn_push]
-    exact transport_witness g hg hgx hc
-  · apply Or.inr
-    intro y hy z hz
-    obtain ⟨x', h⟩ := F.closure.back hz y
-    have conj := F.conjugate_of_lifts C hy (h.eraseSecond F)
-    rcases hc x' conj with hx | hx'
-    · exact Or.inl ⟨x, push x' s, ofFn_push x' s ▸ hx, h.exchange F⟩
-    · exact Or.inr ⟨x', push x s, ofFn_push x s ▸ hx', h⟩
+  exact rank.imp (fun h => orbitFiber_witness F C s x t h inhabited)
+    (orbitFiber_compare F C s x t)
 
 include C in
 private theorem successorFiber {n k : ℕ} (s : Tuple M k) (x : M) (t : Tuple N k)

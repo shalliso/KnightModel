@@ -153,6 +153,7 @@ theorem prefixBounds_H (v u : Word A) :
         exact (h.mono hb).congr (fun x y => (hgraph_common shift o d hd upper a v u x y).symm)
       · exact base _ _ (fun h => H_different shift o d hd upper a b v u h hab)
 
+omit [LinearOrder A] in
 private theorem prefixBounds_guard {p : List A → Prop} {k : ℕ}
     (s : ∀ x : List A, k ≤ x.length → ∀ a, p (x ++ [a]) ↔ p x) :
     PrefixBounds (fun x y => p x ∧ x = y) k where
@@ -181,7 +182,64 @@ theorem prefixBounds_above (v : Word A) :
 
 theorem prefixBounds_atMost (v : Word A) :
     PrefixBounds (fun x y : List A => @LE.le (Word A) _ x v ∧ x = y) (List.length v + 1) :=
-  prefixBounds_guard (fun x h a => (not_congr (lt_append_iff v x h [a])).trans' not_lt.symm |>.trans not_lt)
+  prefixBounds_guard (fun x h a => not_lt.symm.trans ((not_congr (lt_append_iff v x h [a])).trans not_lt))
 
 end Word
+
+namespace WordScheme
+
+/-- A uniform bound computed from the parameter-free scheme alone. -/
+def graphBound : WordScheme → ℕ
+  | .id | .empty => 0
+  | .prefix n | .through n => n
+  | .atMost n | .above n => n+1
+  | .tail n => 2*n+2
+  | .interval m n => 2*m+2+n
+  | .seq f g => f.graphBound + g.graphBound
+  | .union f g => max f.graphBound g.graphBound
+  | .inv f => f.graphBound
+
+theorem prefixBounds {A : Type*} [LinearOrder A] (shift : ∀ a : A, Ici a ≃o A)
+    (o d : A) (hd : o < d) (upper : ∀ a : A, Ioi a ≃o Ioi o)
+    (c : WordScheme) (p : List A) (hp : p.length = c.arity) :
+    PrefixBounds (c.Rel shift o d hd upper p) c.graphBound := by
+  induction c generalizing p with
+  | id => exact PrefixBounds.diag
+  | empty => exact PrefixBounds.empty
+  | «prefix» n =>
+    change p.length = n at hp
+    subst n
+    exact Word.prefixBounds_prepend p
+  | through n =>
+    change p.length = n at hp
+    subst n
+    exact Word.prefixBounds_through shift p
+  | tail n =>
+    change p.length = n at hp
+    subst n
+    exact Word.prefixBounds_tail shift o d hd upper p
+  | atMost n =>
+    change p.length = n at hp
+    subst n
+    exact Word.prefixBounds_atMost p
+  | above n =>
+    change p.length = n at hp
+    subst n
+    exact Word.prefixBounds_above p
+  | interval m n =>
+    have h := Word.prefixBounds_H shift o d hd upper (p.take m) (p.drop m)
+    have he : 2*(p.take m).length + 2 + (p.drop m).length = 2*m + 2+n := by
+      change p.length = m+n at hp
+      simp [hp]
+    change PrefixBounds (Word.HGraph shift o d hd upper (p.take m) (p.drop m)) (2*m+2+n)
+    exact he ▸ h
+  | seq f g ih jh =>
+    change p.length = f.arity+g.arity at hp
+    exact (ih (p.take f.arity) (by simp [hp])).seq (jh (p.drop f.arity) (by simp [hp]))
+  | union f g ih jh =>
+    change p.length = f.arity+g.arity at hp
+    exact (ih (p.take f.arity) (by simp [hp])).union (jh (p.drop f.arity) (by simp [hp]))
+  | inv f ih => exact (ih p hp).inv
+
+end WordScheme
 end KnightModel.RankTwo

@@ -19,6 +19,18 @@ abbrev schemeGraph (i : I) (k : WordScheme) (s : WI I) :=
 namespace GraphMatch
 variable {p : ModelIsoCondition I J Ω} {r t : WI I → WI I → Prop} {s u : WI J → WI J → Prop}
 
+theorem congr (h : GraphMatch p r s) (left : ∀ x y, r x y ↔ t x y)
+    (right : ∀ x y, s x y ↔ u x y) : GraphMatch p t u :=
+  fun _ e _ _ _ _ xx yy => (left _ _).symm.trans ((h e xx yy).trans (right _ _))
+
+theorem inv (h : GraphMatch p r s) :
+    GraphMatch p (fun x y => r y x) (fun x y => s y x) :=
+  fun _ e _ _ _ _ xx yy => h e yy xx
+
+theorem union (h : GraphMatch p r s) (k : GraphMatch p t u) :
+    GraphMatch p (fun x y => r x y ∨ t x y) (fun x y => s x y ∨ u x y) :=
+  fun _ e _ _ _ _ xx yy => (h e xx yy).or (k e xx yy)
+
 theorem seq (h : GraphMatch p r s) (k : GraphMatch p t u) :
     GraphMatch p (fun x y => ∃ z, r x z ∧ t z y) (fun x y => ∃ z, s x z ∧ u z y) := by
   intro q qp x y x' y' xx yy
@@ -47,7 +59,7 @@ theorem schemeGraph_match {i : I} {j : J} (A : IntervalMatches (Ω := Ω) i j)
   induction c generalizing s t with
   | id => exact fun _ _ _ _ _ _ xx yy => xx.eq_iff yy
   | empty => exact fun _ _ _ _ _ _ _ _ => Iff.rfl
-  | prefix n => exact fun _ e _ _ _ _ xx yy => ((h.keep e).prepend xx).eq_iff yy
+  | «prefix» n => exact fun _ e _ _ _ _ xx yy => ((h.keep e).prepend xx).eq_iff yy
   | through n => exact fun _ e _ _ _ _ xx yy => ((h.keep e).through xx).eq_iff yy
   | interval m n => exact A.interval mark m n h
   | tail n => exact A.tail mark n h

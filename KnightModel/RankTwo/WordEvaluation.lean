@@ -169,12 +169,18 @@ theorem H_different (a b : A) (v u : Word A) (h : cons a v < cons b u) (hab : a 
     H shift o d hd upper (cons a v) (cons b u) h = intervalIso shift o d hd upper h := by
   change H shift o d hd upper (a :: (v : List A)) (b :: (u : List A)) _ = _
   rw [H,dif_neg hab]
+  rfl
 
 theorem H_at_root (v : Word A) (h : v < root) :
     H shift o d hd upper v root h = intervalIso shift o d hd upper h := by
   cases v with
   | nil => exact (lt_irrefl _ h).elim
-  | cons a v => rw [show root = ([] : Word A) by rfl,H]
+  | cons a v =>
+    change H shift o d hd upper (a :: v) [] _ = _
+    rw [H]
+    · rfl
+    · intro _ _ _ _ _ _ e
+      cases e
 
 /-- No word inspected in order to retrieve a preimage has to grow past the output. -/
 theorem length_le_through (u x : Word A) : List.length x ≤ List.length (through shift u x) := by
