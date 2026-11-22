@@ -11,7 +11,7 @@ variable {R : ℕ → Type} {I J : Type} [LinearOrder I] [LinearOrder J]
 variable {D : Scott.Model R I} {E : Scott.Model R J} {F : OrderedBF D E}
 
 def BaseMatch (p : F.State) : BasePoints I → BasePoints J → Prop
-  | .inl i, .inl j => (i,j) ∈ p.graph
+  | .inl i, .inl j => (i, j) ∈ p.graph
   | .inr v, .inr w => VectorMatch p v w
   | _, _ => False
 

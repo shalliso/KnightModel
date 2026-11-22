@@ -53,6 +53,7 @@ def largeAction (i : I) (κ : Cardinal.{0}) (hκ : ℵ₀ ≤ κ)
   exact (ladders κ S slots).largeFrameAction Word.shiftLetter ⟨0,le_rfl⟩
     (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter
 
+omit [LinearOrder I] in
 theorem mk_vector_le (i : I) {κ : Cardinal.{0}} (hκ : ℵ₀ ≤ κ) (hI : #I ≤ κ) :
     #(VectorGroup I) ≤ κ := by
   letI : Nonempty I := ⟨i⟩
@@ -70,7 +71,8 @@ theorem mk_largeFrames (i : I) (κ : Cardinal.{0}) (hκ : ℵ₀ ≤ κ)
   have hJ : #(AtlasIndex κ) = Order.succ κ := by rw [mk_toType,card_ord]
   have hc : #(Concrete.Code i) ≤ κ := mk_schematic_code _ _ _ _ _ _ hκ (mk_words_le i hκ hI)
   exact ((ladders κ S slots).markedRows.cardinal_frames (transports i κ S slots)
-    (Concrete.family i) (hJ ▸ hκ.trans (Order.le_succ κ)) (hJ ▸ hc.trans (Order.le_succ κ))).trans hJ
+    (Concrete.family i) (hJ ▸ hκ.trans (Order.le_succ κ))
+    (hJ ▸ hc.trans (Order.le_succ κ))).trans hJ
 
 end
 end KnightModel.Transfinite

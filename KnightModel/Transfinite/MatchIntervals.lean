@@ -13,18 +13,22 @@ variable {D : Scott.Model R I} {E : Scott.Model R J} {F : OrderedBF D E}
 private abbrev zeroLetter (I : Type) [LinearOrder I] : Letter I := ⟨0,le_rfl⟩
 private abbrev singleR (a : Letter I) := Word.SingleGraph (zeroLetter I) Word.shiftOpenLetter a
 private abbrev tailR (i : I) (v : WI I) :=
-  Word.TailGraph Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter v
+  Word.TailGraph Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i)
+    Word.shiftOpenLetter v
 private abbrev normR (i : I) (v u : WI I) :=
-  Word.HGraph Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter v u
+  Word.HGraph Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i)
+    Word.shiftOpenLetter v u
 
 private theorem single_match {p : F.State} {a : Letter I} {b : Letter J}
     (ab : LetterMatch p a b) : GraphMatch p (singleR a) (singleR b) := by
   intro q qp x y x' y' xx yy
   cases xx with
   | nil =>
-    exact (Word.singleGraph_root _ _ a y).trans ((yy.eq_iff .nil).trans (Word.singleGraph_root _ _ b y').symm)
+    exact (Word.singleGraph_root _ _ a y).trans
+      ((yy.eq_iff .nil).trans (Word.singleGraph_root _ _ b y').symm)
   | @cons c d v w cd vw =>
-    refine (Word.singleGraph_cons _ _ a c v y).trans (Iff.trans ?_ (Word.singleGraph_cons _ _ b d w y').symm)
+    refine (Word.singleGraph_cons _ _ a c v y).trans
+      (Iff.trans ?_ (Word.singleGraph_cons _ _ b d w y').symm)
     have pos : zeroLetter I < c ↔ zeroLetter J < d := VectorMatch.zero.lt_iff cd
     constructor
     · rintro ⟨h,e⟩
@@ -35,7 +39,7 @@ private theorem single_match {p : F.State} {a : Letter I} {b : Letter J}
       apply (yy.eq_iff (.cons (cd.add (ab.keep qp)) vw)).mpr e
 
 private theorem tail_match {i : I} {j : J} {p : F.State}
-    (mark : (i,j) ∈ p.graph) {s t} (m : WordMatch p s t) :
+    (mark : (i, j) ∈ p.graph) {s t} (m : WordMatch p s t) :
     GraphMatch p (tailR i s) (tailR j t) := by
   induction m with
   | nil =>
@@ -45,7 +49,8 @@ private theorem tail_match {i : I} {j : J} {p : F.State}
     have addHead : GraphMatch p (fun x y => Word.cons a x = y) (fun x y => Word.cons b x = y) :=
       fun _ e _ _ _ _ xx yy => WordMatch.eq_iff (.cons (ab.keep e) xx) yy
     have dd : LetterMatch p (unitLetter i) (unitLetter j) := VectorMatch.single mark 1
-    have fold : GraphMatch p (fun x y => Word.through Word.shiftLetter (Word.cons (unitLetter i) Word.root) x = y)
+    have fold : GraphMatch p
+        (fun x y => Word.through Word.shiftLetter (Word.cons (unitLetter i) Word.root) x = y)
         (fun x y => Word.through Word.shiftLetter (Word.cons (unitLetter j) Word.root) x = y) :=
       fun _ e _ _ _ _ xx yy => WordMatch.eq_iff (WordMatch.through (.cons (dd.keep e) .nil) xx) yy
     cases st with
@@ -54,7 +59,9 @@ private theorem tail_match {i : I} {j : J} {p : F.State}
         (fun x y => (Word.tailGraph_singleton _ _ _ _ _ _ x y).symm)
         (fun x y => (Word.tailGraph_singleton _ _ _ _ _ _ x y).symm)
     | @cons c d w w' cd ww =>
-      apply ((fold.inv.seq (ih.seq addHead)).union ((single_match dd).inv.seq (single_match ab))).congr
+      have branches := (fold.inv.seq (ih.seq addHead)).union
+        ((single_match dd).inv.seq (single_match ab))
+      apply branches.congr
       · intro x y
         refine Iff.trans (or_congr ?_ Iff.rfl) (Word.tailGraph_cons _ _ _ _ _ _ _ _ x y).symm
         constructor
@@ -81,7 +88,7 @@ private theorem raw_form (i : I) (v u x y : WI I) : rawR i v u x y ↔
     exact ⟨h, (Word.interval_graph _ _ _ _ _ v u h x y).mpr g⟩
 
 private theorem raw_forward {i : I} {j : J} {p : F.State}
-    (mark : (i,j) ∈ p.graph) {v v' u u' x x' y y'} (vv : WordMatch p v v')
+    (mark : (i, j) ∈ p.graph) {v v' u u' x x' y y'} (vv : WordMatch p v v')
     (uu : WordMatch p u u') (xx : WordMatch p x x') (yy : WordMatch p y y')
     (h : rawR i v u x y) : rawR j v' u' x' y' := by
   obtain ⟨vu,t,z,ht,hg,hz⟩ := (raw_form _ _ _ _ _).mp h
@@ -94,7 +101,7 @@ private theorem raw_forward {i : I} {j : J} {p : F.State}
   · exact (((uu.keep lp).through zz).eq_iff (yy.keep lp)).mp hz
 
 private theorem raw_match {i : I} {j : J} {p : F.State}
-    (mark : (i,j) ∈ p.graph) {v v' u u'} (vv : WordMatch p v v') (uu : WordMatch p u u') :
+    (mark : (i, j) ∈ p.graph) {v v' u u'} (vv : WordMatch p v v') (uu : WordMatch p u u') :
     GraphMatch p (rawR i v u) (rawR j v' u') := by
   intro q qp x y x' y' xx yy
   exact ⟨raw_forward (qp mark) (vv.keep qp) (uu.keep qp) xx yy,
@@ -102,18 +109,21 @@ private theorem raw_match {i : I} {j : J} {p : F.State}
       xx.symm yy.symm⟩
 
 private theorem raw_norm (i : I) {v u : WI I} (e : ∀ h : v < u,
-    Word.H Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter v u h =
-    Word.intervalIso Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i) Word.shiftOpenLetter h)
+    Word.H Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i)
+        Word.shiftOpenLetter v u h =
+    Word.intervalIso Word.shiftLetter (zeroLetter I) (unitLetter i) (zero_lt_unit i)
+        Word.shiftOpenLetter h)
     (x y : WI I) : rawR i v u x y ↔ normR i v u x y := by
   exact exists_congr fun h => exists_congr fun z => and_congr_right fun _ => by rw [e h]
 
 private theorem norm_match {i : I} {j : J} {p : F.State}
-    (mark : (i,j) ∈ p.graph) {v v' u u'} (vv : WordMatch p v v') (uu : WordMatch p u u') :
+    (mark : (i, j) ∈ p.graph) {v v' u u'} (vv : WordMatch p v v') (uu : WordMatch p u u') :
     GraphMatch p (normR i v u) (normR j v' u') := by
   induction vv generalizing u u' with
   | nil =>
     intro q qp x y x' y' xx yy
-    exact iff_of_false (fun ⟨h,_⟩ => (Word.le_root _).not_gt h) (fun ⟨h,_⟩ => (Word.le_root _).not_gt h)
+    exact iff_of_false (fun ⟨h, _⟩ => (Word.le_root _).not_gt h)
+      (fun ⟨h, _⟩ => (Word.le_root _).not_gt h)
   | @cons a b v v' ab vv ih =>
     cases uu with
     | nil =>
@@ -138,11 +148,13 @@ private theorem norm_match {i : I} {j : J} {p : F.State}
 /-- Every interval and tail program actually respects the finite old-index support matches. -/
 theorem intervalMatches (i : I) (j : J) : IntervalMatches (F := F) i j where
   tail := by intro p mark n s t h; exact tail_match mark h
-  interval := by intro p mark m n s t h; exact norm_match mark (List.forall₂_take m h) (List.forall₂_drop m h)
+  interval := by
+    intro p mark m n s t h
+    exact norm_match mark (List.forall₂_take m h) (List.forall₂_drop m h)
 
 /-- Transport of every graph in the countable program language. -/
 theorem orderedScheme_match {i : I} {j : J} {p : F.State}
-    (mark : (i,j) ∈ p.graph) (c : WordScheme) {s t} (h : WordMatch p s t) :
+    (mark : (i, j) ∈ p.graph) (c : WordScheme) {s t} (h : WordMatch p s t) :
     GraphMatch p (schemeGraph i c s) (schemeGraph j c t) :=
   schemeGraph_match (intervalMatches i j) mark c h
 

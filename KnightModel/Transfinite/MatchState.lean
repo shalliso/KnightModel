@@ -83,7 +83,7 @@ def symm (p : F.State) : F.flip.State := ⟨p.arity,p.right,p.left,p.ok⟩
 
 @[simp] theorem symm_symm (p : F.State) : p.symm.symm = p := rfl
 
-theorem mem_symm_graph {p : F.State} {i : I} {j : J} : (j,i) ∈ p.symm.graph ↔ (i,j) ∈ p.graph := by
+theorem mem_symm_graph {p : F.State} {i : I} {j : J} : (j,i) ∈ p.symm.graph ↔ (i, j) ∈ p.graph := by
   constructor <;> rintro ⟨a,e⟩ <;> exact ⟨a,congrArg Prod.swap e⟩
 
 theorem mem_dom_symm_iff_mem_ran (p : F.State) {j : J} : j ∈ p.symm.dom ↔ j ∈ p.ran :=
@@ -93,18 +93,20 @@ theorem mem_dom_symm_iff_mem_ran (p : F.State) {j : J} : j ∈ p.symm.dom ↔ j 
 theorem reverse_refines {p : F.State} {q : F.flip.State} (h : q ≤ p.symm) : q.symm ≤ p :=
   fun _ pair => mem_symm_graph.mpr (h (mem_symm_graph.mpr pair))
 
-theorem extendIndexLeft (p : F.State) (x : I) : ∃ (q : F.State) (y : J), q ≤ p ∧ (x,y) ∈ q.graph := by
+theorem extendIndexLeft (p : F.State) (x : I) :
+    ∃ (q : F.State) (y : J), q ≤ p ∧ (x, y) ∈ q.graph := by
   obtain ⟨y,h⟩ := F.forth p.ok x
   let q : F.State := ⟨p.arity+1,push x p.left,push y p.right,h⟩
   exact ⟨q,y,fun _ ⟨a,e⟩ => ⟨a.succ,e⟩,0,rfl⟩
 
-theorem extendIndexRight (p : F.State) (y : J) : ∃ (q : F.State) (x : I), q ≤ p ∧ (x,y) ∈ q.graph := by
+theorem extendIndexRight (p : F.State) (y : J) :
+    ∃ (q : F.State) (x : I), q ≤ p ∧ (x, y) ∈ q.graph := by
   obtain ⟨x,h⟩ := F.back p.ok y
   let q : F.State := ⟨p.arity+1,push x p.left,push y p.right,h⟩
   exact ⟨q,x,fun _ ⟨a,e⟩ => ⟨a.succ,e⟩,0,rfl⟩
 
 theorem relation (p : F.State) {n} (r : R n) {s : Tuple I n} {t : Tuple J n}
-    (h : ∀ a, (s a,t a) ∈ p.graph) : D r s ↔ E r t := by
+    (h : ∀ a, (s a, t a) ∈ p.graph) : D r s ↔ E r t := by
   choose f eq using h
   have l : p.left ∘ f = s := funext fun a => congrArg Prod.fst (eq a)
   have v : p.right ∘ f = t := funext fun a => congrArg Prod.snd (eq a)

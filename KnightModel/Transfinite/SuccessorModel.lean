@@ -27,7 +27,8 @@ def baseModel (D : Scott.Model R I) : Scott.Model (BaseRelation R) (Scott.BasePo
 abbrev SuccessorRelation (R : ℕ → Type) := FrameRelation (BaseRelation R) Concrete.Name
 
 instance [Countable (Σ n, R n)] : Countable (Σ n, SuccessorRelation R n) := by
-  let dec : ((Σ n, R n) ⊕ (Bool ⊕ ℚ)) ⊕ (Bool ⊕ WordScheme) → Σ n, SuccessorRelation R n
+  let dec : ((Σ n, R n) ⊕ (Bool ⊕ ℚ)) ⊕ (Bool ⊕ WordScheme) →
+      Σ n, SuccessorRelation R n
     | .inl (.inl ⟨_,r⟩) => ⟨_,.base (.old r)⟩
     | .inl (.inr (.inl false)) => ⟨_,.base .indexSort⟩
     | .inl (.inr (.inl true)) => ⟨_,.base .vectorSort⟩
@@ -52,12 +53,14 @@ instance [Countable (Σ n, R n)] : Countable (Σ n, SuccessorRelation R n) := by
   exact hs.countable
 
 instance [Countable (Σ n, R n)] (n : ℕ) : Countable (SuccessorRelation R n) :=
-  (show Function.Injective (Sigma.mk n : SuccessorRelation R n → Σ m, _) from sigma_mk_injective).countable
+  (show Function.Injective (Sigma.mk n : SuccessorRelation R n → Σ _, _) from
+    sigma_mk_injective).countable
 
 noncomputable section
 
 def smallInterpretation (D : Scott.Model R I) (i : I) :
-    FrameInterpretation (BaseRelation R) Concrete.Name (Scott.BasePoints I) (Concrete.smallAction i) where
+    FrameInterpretation (BaseRelation R) Concrete.Name (Scott.BasePoints I)
+      (Concrete.smallAction i) where
   base := baseModel D
   run := Concrete.run i
   faithful f _ _ h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.val.injective
@@ -77,7 +80,8 @@ theorem countable_smallCarrier [Countable I] (i : I) : Countable (SmallCarrier i
 
 def largeInterpretation (D : Scott.Model R I) (i : I) (κ : Cardinal.{0}) (hκ : ℵ₀ ≤ κ)
     (S : SquareLadders (AtlasIndex κ) κ.ord) (slots : κ.ord.ToType ↪o I) :
-    FrameInterpretation (BaseRelation R) Concrete.Name (Scott.BasePoints I) (largeAction i κ hκ S slots) where
+    FrameInterpretation (BaseRelation R) Concrete.Name (Scott.BasePoints I)
+      (largeAction i κ hκ S slots) where
   base := baseModel D
   run := Concrete.run i
   faithful f _ _ h := Subtype.ext (DFunLike.ext _ _ (fun w => f.val.injective
@@ -104,9 +108,6 @@ theorem mk_largeCarrier (i : I) (κ : Cardinal.{0}) (hκ : ℵ₀ ≤ κ)
 def smallPresentation [Countable (Σ n, R n)] [Countable I] (i : I) :
     Presentation (SuccessorRelation R) (SmallCarrier i) := by
   letI := countable_smallCarrier i
-  let w := Word.cons (unitLetter i) Word.root
-  let f := throughCode Word.shiftLetter (⟨0,le_rfl⟩ : Letter I) (unitLetter i)
-    (zero_lt_unit i) Word.shiftOpenLetter w
   letI : Nonempty (SmallCarrier i) := ⟨.inl (.inl i)⟩
   exact Presentation.ofCountable _ _
 

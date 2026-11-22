@@ -12,7 +12,7 @@ variable {D : Scott.Model R I} {E : Scott.Model R J} {F : OrderedBF D E}
 
 structure VectorMatch (p : F.State) (u : VectorGroup I) (v : VectorGroup J) :
     Prop where
-  coeff : ∀ {i j}, (i,j) ∈ p.graph → u i = v j
+  coeff : ∀ {i j}, (i, j) ∈ p.graph → u i = v j
   leftZero : ∀ i, i ∉ p.dom → u i = 0
   rightZero : ∀ j, j ∉ p.ran → v j = 0
 
@@ -54,7 +54,7 @@ theorem sub (H : VectorMatch p a b) (K : VectorMatch p c d) :
   leftZero i hi := by change a i - c i = 0; rw [H.leftZero i hi, K.leftZero i hi, sub_self]
   rightZero j hj := by change b j - d j = 0; rw [H.rightZero j hj, K.rightZero j hj, sub_self]
 
-theorem single {i j} (h : (i,j) ∈ p.graph) (r : ℚ) :
+theorem single {i j} (h : (i, j) ∈ p.graph) (r : ℚ) :
     VectorMatch p (toColex (Finsupp.single i r)) (toColex (Finsupp.single j r)) where
   coeff := by
     intro k l kl
@@ -80,7 +80,8 @@ private theorem lt_forward (H : VectorMatch p a b) (K : VectorMatch p c d) (ac :
   intro l jl
   by_cases hl : l ∈ p.ran
   · obtain ⟨k, kl⟩ := hl
-    have ik : i < k := lt_of_not_ge (fun ki => jl.not_ge ((p.toPartialIso.order_pres_iff kl ij).mp ki))
+    have ik : i < k := lt_of_not_ge fun ki =>
+      jl.not_ge ((p.toPartialIso.order_pres_iff kl ij).mp ki)
     exact (H.coeff kl).symm.trans ((above k ik).trans (K.coeff kl))
   · rw [H.rightZero l hl, K.rightZero l hl]
 

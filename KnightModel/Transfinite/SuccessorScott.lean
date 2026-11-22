@@ -33,8 +33,9 @@ def successorTransfer : letI := successorOrder P
         ((P.pres.sentence_iff P.D Q.E).mp Q.sat).1
       have m := frameSystem_old (oldSystem P Q) P.mark Q.mark κ hκ S Q.seq
         P.markSym P.mark_iff Q.mark_iff empty
-      exact (Subsingleton.elim (fun (l : Fin 0) => (Sum.inl (.inl (Fin.elim0 l)) : SmallCarrier P.mark)) Fin.elim0) ▸
-        (Subsingleton.elim (fun (l : Fin 0) => (Sum.inl (.inl (Fin.elim0 l)) : LargeCarrier Q.mark κ S Q.seq)) Fin.elim0) ▸ m
+      let s (l : Fin 0) : SmallCarrier P.mark := .inl (.inl (Fin.elim0 l))
+      let t (l : Fin 0) : LargeCarrier Q.mark κ S Q.seq := .inl (.inl (Fin.elim0 l))
+      exact (Subsingleton.elim s Fin.elim0) ▸ (Subsingleton.elim t Fin.elim0) ▸ m
     pres := smallPresentation P.mark
     invariant := successorOrder_invariant P
   }
@@ -71,7 +72,8 @@ theorem successor_frame_lt (a b : LargeFrames Q.mark κ S Q.seq) (hab : a.val �
     (T.F.closure.atoms h (.rel .frame (fun _ => j))).mpr ⟨f,ht⟩
   obtain ⟨u,hu⟩ := frame 0 a rfl
   obtain ⟨v,hv⟩ := frame 1 b rfl
-  have endpoint {i j : Fin 2} {c d : Concrete.SmallFrames P.mark} {f g : LargeFrames Q.mark κ S Q.seq}
+  have endpoint {i j : Fin 2} {c d : Concrete.SmallFrames P.mark}
+      {f g : LargeFrames Q.mark κ S Q.seq}
       (sc : s i = .inr c) (sd : s j = .inr d) (tf : t i = .inr f) (tg : t j = .inr g) :
       c.val.val ⊤ ≤ d.val.val ⊤ ↔ f.val ⊤ ≤ g.val ⊤ := by
     let ij : Fin 2 → Fin 2 := ![i,j]
@@ -86,7 +88,8 @@ theorem successor_frame_lt (a b : LargeFrames Q.mark κ S Q.seq) (hab : a.val �
   apply (T.lt_iff h 0 1).mp
   rw [hu,hv]
   letI := FrameOrder.order P.mark
-  exact (Sum.Lex.inr_lt_inr_iff (α := P.M ⊕ₗ VectorGroup P.M) (β := Concrete.SmallFrames P.mark)).mpr (FrameOrder.lt_of_endpoint_lt P.mark hlt)
+  exact (Sum.Lex.inr_lt_inr_iff (α := P.M ⊕ₗ VectorGroup P.M)
+    (β := Concrete.SmallFrames P.mark)).mpr (FrameOrder.lt_of_endpoint_lt P.mark hlt)
 
 /-- Actual successor realization, including a linearly increasing sequence of
 full successor length for use as slots at the next stage. -/
@@ -103,7 +106,8 @@ def successorRealizes : (successorSeed P).Realizes (Order.succ κ) := by
     mark_iff := large_mark P Q hκ S
     sat := T.satisfies (successorSeed P).pres
     seq := OrderEmbedding.ofStrictMono (fun a => .inr (largeAnchor Q.mark κ S Q.seq a))
-      (fun _ _ hab => successor_frame_lt P Q hκ S _ _ (largeAnchor_strictMono_endpoint Q.mark κ S Q.seq hab))
+      (fun _ _ hab => successor_frame_lt P Q hκ S _ _
+        (largeAnchor_strictMono_endpoint Q.mark κ S Q.seq hab))
     size := mk_largeCarrier Q.mark κ hκ S Q.seq Q.size.le }
 
 /-- Naming the order preserves the successor comparison bound on every finite tuple. -/

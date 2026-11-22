@@ -76,7 +76,8 @@ theorem frameSystem_old (r : R 1) (lm : ∀ t, D r t ↔ t 0 = i)
   have pin : y = j := (rm (fun _ => y)).mp ((q.relation r (fun _ => pair)).mp
     ((lm (fun _ => i)).mpr rfl))
   subst y
-  let a : AtlasIndex κ := Ordinal.ToType.mk ⟨0,ord_pos.mpr ((aleph0_pos.trans_le hκ).trans_le (Order.le_succ κ))⟩
+  have κpos := (aleph0_pos.trans_le hκ).trans_le (Order.le_succ κ)
+  let a : AtlasIndex κ := Ordinal.ToType.mk ⟨0, ord_pos.mpr κpos⟩
   refine ⟨{
     state := ⟨q,pair⟩
     left := firstSmall i

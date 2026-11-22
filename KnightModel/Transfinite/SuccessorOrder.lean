@@ -18,7 +18,8 @@ noncomputable section
 private theorem frame_mark {R : Nat → Type} {I C F : Type} [LinearOrder I]
     {D : Model R I} {A : FrameAction C F}
     (T : FrameInterpretation (BaseRelation R) Concrete.Name (BasePoints I) A)
-    (base : T.base (k := 1) = baseModel D (k := 1)) (r : R 1) (i : I) (hr : ∀ t, D r t ↔ t 0 = i)
+    (base : T.base (k := 1) = baseModel D (k := 1)) (r : R 1) (i : I)
+    (hr : ∀ t, D r t ↔ t 0 = i)
     (s : Tuple (BasePoints I ⊕ F) 1) :
     T.model (.base (.old r)) s ↔ s 0 = .inl (.inl i) := by
   change (∃ t, (∀ j, s j = .inl (t j)) ∧ T.base (.old r) t) ↔ _
@@ -49,11 +50,13 @@ theorem successorOrder_invariant (P : Seed) (g : ↥(automorphismGroup (smallMod
     letI := successorOrder P
     x ≤ y ↔ g • x ≤ g • y := by
   letI := FrameOrder.order P.mark
+  let perm := (SuccessorAut.frameSort P).map g
   let f : Concrete.SmallFrames P.mark ≃o Concrete.SmallFrames P.mark :=
     { toEquiv := (SuccessorAut.frameSort P).perm g
       map_rel_iff' := fun {a b} => by
-        change (FrameOrder.order P.mark).le ((SuccessorAut.frameSort P).map g a) ((SuccessorAut.frameSort P).map g b) ↔ (FrameOrder.order P.mark).le a b
-        exact (not_lt (a := (SuccessorAut.frameSort P).map g b) (b := (SuccessorAut.frameSort P).map g a)).symm.trans ((not_congr (FrameOrder.aut_lt_iff P g b a)).symm.trans not_lt) }
+        change (FrameOrder.order P.mark).le (perm a) (perm b) ↔ (FrameOrder.order P.mark).le a b
+        exact (not_lt (a := perm b) (b := perm a)).symm.trans
+          ((not_congr (FrameOrder.aut_lt_iff P g b a)).symm.trans not_lt) }
   let e := ((SuccessorAut.indexOrderIso P g).sumLexCongr
     (SuccessorAut.vectorOrderIso P g)).sumLexCongr f
   have act (u : SmallCarrier P.mark) : e u = g • u := by

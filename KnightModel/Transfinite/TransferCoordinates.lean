@@ -22,7 +22,7 @@ private theorem matchPresented {p : F.State} {c : Code i} {d : Code j}
   fun _ h _ _ _ _ xx yy => (hc _ _).symm.trans ((m h xx yy).trans (hd _ _))
 
 theorem codeForth {p : F.State}
-    (mark : (i,j) ∈ p.graph) (c : Code i) :
+    (mark : (i, j) ∈ p.graph) (c : Code i) :
     ∃ (q : F.State) (d : Code j), q ≤ p ∧ CodeMatch q c d := by
   obtain ⟨k,u,hu,hc⟩ := c.property.1
   obtain ⟨q,v,qp,uv⟩ := WordMatch.forth p u
@@ -31,7 +31,7 @@ theorem codeForth {p : F.State}
   let d : Code j := ⟨e, ⟨k, v, uv.length_eq.symm.trans hu, hg⟩, hi⟩
   exact ⟨q, d, qp, matchPresented gm hc hg⟩
 
-theorem codeBack {p : F.State} (mark : (i,j) ∈ p.graph) (d : Code j) :
+theorem codeBack {p : F.State} (mark : (i, j) ∈ p.graph) (d : Code j) :
     ∃ (q : F.State) (c : Code i), q ≤ p ∧ CodeMatch q c d := by
   obtain ⟨q,c,qp,matchCode⟩ := codeForth (p := p.symm) (OrderedBF.State.mem_symm_graph.mpr mark) d
   exact ⟨q.symm,c,OrderedBF.State.reverse_refines qp,matchCode.symm⟩
@@ -51,7 +51,7 @@ noncomputable def frameMatches (F : OrderedBF D E) (i : I) (j : J)
     (slots : κ.ord.ToType ↪o J) :
     CoordinateMatches (BasePoints I) (BasePoints J) (smallAction i)
       (largeAction j κ hκ S slots) where
-  State := {p : F.State // (i,j) ∈ p.graph}
+  State := {p : F.State // (i, j) ∈ p.graph}
   param p := BaseMatch p.val
   code p := CodeMatch p.val
   one _ := fun _ _ _ _ _ _ xx yy => xx.eq_iff yy

@@ -14,7 +14,6 @@ namespace KnightModel.Transfinite
 open RankTwo RankTwo.Scott Cardinal Set
 universe w
 noncomputable section
-open Classical
 
 /-- Index of the cardinal bound for singleton rank at most α. -/
 def ceilingIndex (α : Ordinal.{0}) : Ordinal.{0} :=
@@ -27,6 +26,7 @@ theorem ceilingIndex_le_of_lt {β α : Ordinal.{0}} (h : β < α) : ceilingIndex
   · exact Order.succ_le_of_lt h
 
 variable {R : ℕ → Type} {M : Type} {N : Type w} {D : Model R M} {E : Model R N}
+local instance : DecidableEq M := Classical.decEq _
 variable (F : BackAndForth D E) (C : Presentation R M)
 
 /-- The realizations of a chosen family of pointed source labels over a target tuple. -/
@@ -82,9 +82,10 @@ private theorem earlier_dichotomy {k} (α : Ordinal.{0}) (ha : α ≠ 0)
     obtain ⟨g,hg,hgx⟩ := F.conjugate_of_lifts C hy (h.eraseSecond F)
     rcases hc x' ⟨g,fun a ha => hg a (List.mem_toFinset.mp ha),hgx⟩ with
       ⟨β,hβ,hr⟩ | ⟨β,hβ,hr⟩
-    · exact Or.inl ⟨x,push x' s,⟨β,hβ,by simpa only [ModelOrdinalRankLE, ofFn_push,List.toFinset_cons] using hr⟩,
-        h.exchange F⟩
-    · exact Or.inr ⟨x',push x s,⟨β,hβ,by simpa only [ModelOrdinalRankLE, ofFn_push,List.toFinset_cons] using hr⟩,h⟩
+    · refine Or.inl ⟨x,push x' s,⟨β,hβ,?_⟩,h.exchange F⟩
+      simpa only [ModelOrdinalRankLE,ofFn_push,List.toFinset_cons] using hr
+    · refine Or.inr ⟨x',push x s,⟨β,hβ,?_⟩,h⟩
+      simpa only [ModelOrdinalRankLE,ofFn_push,List.toFinset_cons] using hr
 
 include C in
 /-- The ordinal rank of a pointed orbit bounds its size over arbitrary target parameters. -/
@@ -167,7 +168,7 @@ theorem exists_exact_rank_of_realization (α : Ordinal.{0})
     cases n with
     | zero =>
       obtain ⟨β,hβ,_⟩ := smaller (C.enum 0)
-      exact (not_lt_of_ge (zero_le : 0 ≤ β)) (by simpa using hβ)
+      simp at hβ
     | succ n =>
       apply obstruction n
       · rw [ceilingIndex,if_pos hf]

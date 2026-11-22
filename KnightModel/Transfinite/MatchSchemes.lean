@@ -43,14 +43,14 @@ end GraphMatch
 
 /-- The two concrete interval primitive tests to be verified for the distinguished letters. -/
 structure IntervalMatches (i : I) (j : J) : Prop where
-  tail : ∀ {p : F.State}, (i,j) ∈ p.graph → ∀ (n : Nat) {s t}, WordMatch p s t →
+  tail : ∀ {p : F.State}, (i, j) ∈ p.graph → ∀ (n : Nat) {s t}, WordMatch p s t →
     GraphMatch p (schemeGraph i (.tail n) s) (schemeGraph j (.tail n) t)
-  interval : ∀ {p : F.State}, (i,j) ∈ p.graph → ∀ (m n : Nat) {s t},
+  interval : ∀ {p : F.State}, (i, j) ∈ p.graph → ∀ (m n : Nat) {s t},
     WordMatch p s t →
     GraphMatch p (schemeGraph i (.interval m n) s) (schemeGraph j (.interval m n) t)
 
 theorem schemeGraph_match {i : I} {j : J} (A : IntervalMatches (F := F) i j)
-    {p : F.State} (mark : (i,j) ∈ p.graph)
+    {p : F.State} (mark : (i, j) ∈ p.graph)
     (c : WordScheme) {s t} (h : WordMatch p s t) :
     GraphMatch p (schemeGraph i c s) (schemeGraph j c t) := by
   induction c generalizing s t with

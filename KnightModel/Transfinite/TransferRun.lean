@@ -33,8 +33,8 @@ private theorem none_if_not_arguments {n : ℕ} {i : I} {k : Name n}
     exact (hs ⟨u,funext hu⟩).elim
 
 
-private theorem run_match_letters {n : ℕ} {i : I} {j : J} 
-    (mark : (i,j) ∈ p.graph) (k : Name n) (u : Fin n → Letter I) (v : Fin n → Letter J)
+private theorem run_match_letters {n : ℕ} {i : I} {j : J} (mark : (i, j) ∈ p.graph)
+    (k : Name n) (u : Fin n → Letter I) (v : Fin n → Letter J)
     (uv : WordMatch p (List.ofFn u) (List.ofFn v)) :
     Option.Rel (fun c e => GraphMatch p (fun x y => c.val x = y) (fun x y => e.val x = y))
       (run i k (pack u)) (run j k (pack v)) := by
@@ -60,8 +60,8 @@ private theorem run_match_letters {n : ℕ} {i : I} {j : J}
 
 /-- Both evaluations reject together, or they give coordinate maps whose
 graphs match at every finite extension of the current index position. -/
-theorem run_matches {n : ℕ} {i : I} {j : J} 
-    (mark : (i,j) ∈ p.graph) (k : Name n) {s : Tuple (BasePoints I) n} {t : Tuple (BasePoints J) n}
+theorem run_matches {n : ℕ} {i : I} {j : J} (mark : (i, j) ∈ p.graph)
+    (k : Name n) {s : Tuple (BasePoints I) n} {t : Tuple (BasePoints J) n}
     (m : ∀ l, BaseMatch p (s l) (t l)) :
     Option.Rel (fun c e => GraphMatch p (fun x y => c.val x = y) (fun x y => e.val x = y))
       (run i k s) (run j k t) := by
