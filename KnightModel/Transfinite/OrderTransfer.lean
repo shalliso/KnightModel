@@ -73,7 +73,8 @@ theorem exists_lift {n} (t : Tuple N n) : ∃ s, T.F.Lifts s t := by
   | succ n ih =>
     obtain ⟨s,hs⟩ := ih (Fin.tail t)
     obtain ⟨x,hx⟩ := T.F.closure.back hs (t 0)
-    exact ⟨push x s, (show push (t 0) (Fin.tail t) = t from funext (Fin.cases rfl (fun _ => rfl))) ▸ hx⟩
+    have ht : push (t 0) (Fin.tail t) = t := funext (Fin.cases rfl (fun _ => rfl))
+    exact ⟨push x s,ht ▸ hx⟩
 
 def rel (x y : N) : Prop := ∃ s : Tuple M 2, T.F.Lifts s ![x,y] ∧ s 0 ≤ s 1
 
@@ -87,7 +88,7 @@ theorem coord {n} {s : Tuple M n} {t : Tuple N n}
   obtain ⟨g,hg⟩ := T.F.lifts_aligned T.pres hh hu
   exact (T.invariant g _ _).mpr (show g • s i ≤ g • s j from (hg 0) ▸ (hg 1) ▸ hle)
 
-def order : LinearOrder N := by
+@[implicit_reducible] def order : LinearOrder N := by
   classical
   exact {
     le := T.rel

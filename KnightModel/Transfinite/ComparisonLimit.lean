@@ -52,7 +52,8 @@ theorem pairMeasure_lt_limit {a b lim : Ordinal.{w}} (hlim : Order.IsSuccLimit l
   have hnext : max a b + 1 < lim := hlim.succ_lt (max_lt ha hb)
   have twoω : (2 : Ordinal.{w}) < Ordinal.omega0 := Ordinal.natCast_lt_omega0 2
   have hmul : 2 * lim = lim :=
-    Ordinal.mul_omega0_dvd zero_lt_two twoω (Ordinal.isSuccLimit_iff_omega0_dvd.mp hlim).2
+    Ordinal.mul_omega0_dvd zero_lt_two twoω
+      (Ordinal.isSuccPrelimit_iff_omega0_dvd.mp hlim.isSuccPrelimit)
   exact (pairMeasure_lt_next ..).trans
     (hmul ▸ (mul_lt_mul_iff_right₀ (zero_lt_two : (0 : Ordinal) < 2)).2 hnext)
 
