@@ -24,3 +24,4 @@ import KnightModel.MainResults
 import KnightModel.Meta.AxiomsAudit
 import KnightModel.PartialIso
 import KnightModel.RankTwo
+import KnightModel.Transfinite

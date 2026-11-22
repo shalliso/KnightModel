@@ -10,12 +10,14 @@ import KnightModel.RankTwo.MarkedExtensionCriterion
 import KnightModel.RankTwo.MarkedExtensionOmission
 import KnightModel.RankTwo.AmalgamationObstruction
 import KnightModel.RankTwo.ScottFiniteDiagrams
+import KnightModel.Transfinite.Spectrum
+import KnightModel.Transfinite.SuccessorBound
 import Lean.Util.CollectAxioms
 
 /-!
 # Axiom Audit
 
-This file mechanically checks that the public Knight model, rank-two spectrum and tree obstruction theorems
+This file mechanically checks that the public Knight model, finite and transfinite spectra, and tree obstruction theorems
 rely only on the three standard Lean/Mathlib foundational axioms:
 `propext`, `Classical.choice`, and `Quot.sound`.
 
@@ -28,6 +30,8 @@ The `#print axioms` commands below are run by CI and their output appears in the
 #print axioms nonempty_knightIso_of_encodable
 
 #print axioms KnightModel.RankTwo.exists_rank_two_scott_characterization
+#print axioms KnightModel.Transfinite.exists_scott_characterizing_aleph
+#print axioms KnightModel.Transfinite.exists_sharp_scott_characterization
 
 #print axioms KnightModel.RankTwo.Scott.Negative.special_or_kurepa_of_rank
 #print axioms KnightModel.RankTwo.Scott.cardinal_le_aleph_one_of_no_trees
@@ -40,6 +44,11 @@ The `#print axioms` commands below are run by CI and their output appears in the
 run_cmd
   let allowed := [``propext, ``Classical.choice, ``Quot.sound]
   let results := [``KnightModel.RankTwo.exists_rank_two_scott_characterization,
+    ``KnightModel.Transfinite.exists_scott_characterizing_aleph,
+    ``KnightModel.Transfinite.exists_sharp_scott_characterization,
+    ``KnightModel.Transfinite.exists_rank_omega_scott_characterization,
+    ``KnightModel.Transfinite.cardinal_le_of_ordinal_rank,
+    ``KnightModel.Transfinite.successorSeed_bounded,
     ``KnightModel.RankTwo.Scott.cardinal_le_aleph_of_scott_rank,
     ``KnightModel.RankTwo.Scott.Negative.special_or_kurepa_of_rank,
     ``KnightModel.RankTwo.Scott.cardinal_le_aleph_one_of_no_trees,

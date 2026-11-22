@@ -61,6 +61,10 @@ There is also a converse obstruction in ZFC. Any example with a model of size $\
 
 The same hypotheses force a countable elementary extension with continuum many ways of attaching it over its base, any two of which have no common elementary amalgam. A separate sufficient criterion constructs an $\aleph_2$ model when a family of countable marked extensions admits base changes and countable unions. [Amalgamation obstruction](KnightModel/RankTwo/AmalgamationObstruction.lean) · [Marked-extension criterion](KnightModel/RankTwo/MarkedExtensionCriterion.lean)
 
+## Countable ordinal stages
+
+For every countable ordinal $\alpha$, a countable structure with singleton disjointifying ranks at most $\alpha$ can have a Scott sentence characterizing $\aleph_\alpha$. The large realization uses Jensen square at $\aleph_\beta$ for $0<\beta<\alpha$. The sharp general cardinal bound for rank $\alpha$ is $\aleph_\alpha$ at finite ranks and $\aleph_{\alpha+1}$ at infinite ranks. The rank-indexed construction attains this bound under square at the jumps it uses, including $\aleph_\alpha$ when $\alpha$ is infinite. [Readable proof](docs/transfinite-frame-tower.md) · [Lean theorem statements](KnightModel/Transfinite/Spectrum.lean)
+
 ## Building
 
 Prerequisites: [Lean 4](https://leanprover.github.io/lean4/doc/setup.html) and
@@ -85,6 +89,7 @@ Always run `lake exe cache get` before `lake build` in a fresh environment.
 ```text
 KnightModel/
 ├── MainResults.lean         # Public theorems (start here)
+├── Transfinite/             # Ordinal tower, sharp ranks and cardinal spectra
 ├── RankTwo/                 # Scott sentences, square construction and rank bounds
 ├── PartialIso.lean          # partial maps API
 ├── Blueprint/               # Blueprint definition and instance
